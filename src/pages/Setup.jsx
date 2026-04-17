@@ -81,16 +81,21 @@ export default function Setup() {
   async function applyCourse(course) {
     setShowDropdown(false)
     setCourseSearching(true)
-    const full = await fetchCourse(course.id)
-    setCourseSearching(false)
-    if (!full) return
-    const teeBox = pickTeeBox(full.tees)
-    if (!teeBox?.holes?.length) return
-    const holes = teeBox.holes
-    const n = holes.length === 9 ? 9 : 18
-    setNumHoles(n)
-    setPars(holes.slice(0, n).map(h => Math.max(3, Math.min(5, h.par))))
-    setSelectedCourse({ ...course, _tee: teeBox.tee_name })
+    try {
+      const full = await fetchCourse(course.id)
+      if (!full) throw new Error('No course data returned')
+      const teeBox = pickTeeBox(full.tees)
+      if (!teeBox?.holes?.length) throw new Error('No hole data for this course')
+      const holes = teeBox.holes
+      const n = holes.length === 9 ? 9 : 18
+      setNumHoles(n)
+      setPars(holes.slice(0, n).map(h => Math.max(3, Math.min(5, h.par))))
+      setSelectedCourse({ ...course, _tee: teeBox.tee_name })
+    } catch (err) {
+      setError(`Could not load course data: ${err.message}`)
+    } finally {
+      setCourseSearching(false)
+    }
   }
 
   function handleNumHoles(n) {
@@ -187,7 +192,7 @@ export default function Setup() {
                 <input
                   type="text"
                   value={courseQuery}
-                  onChange={(e) => { setCourseQuery(e.target.value); setSelectedCourse(null) }}
+                  onChange={(e) => { setCourseQuery(e.target.value); setSelectedCourse(null); setError('') }}
                   onFocus={() => courseResults.length > 0 && setShowDropdown(true)}
                   placeholder="Search by course or club name..."
                   className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none pr-10"
@@ -204,7 +209,7 @@ export default function Setup() {
                   {courseResults.map(course => (
                     <li
                       key={course.id}
-                      onMouseDown={() => applyCourse(course)}
+                      onClick={() => applyCourse(course)}
                       className="px-4 py-3 hover:bg-masters-cream cursor-pointer border-b border-gray-100 last:border-b-0"
                     >
                       <div className="font-medium text-masters-green text-sm">{course.club_name}</div>
@@ -223,6 +228,7 @@ export default function Setup() {
                   Pars loaded from {selectedCourse.club_name} ({selectedCourse._tee} tees) — you can still edit them in the next step.
                 </p>
               )}
+              {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
