@@ -19,7 +19,8 @@ async function searchCourses(query) {
 async function fetchCourse(id) {
   const res = await fetch(`https://api.golfcourseapi.com/v1/courses/${id}`, { headers: API_HEADERS })
   if (!res.ok) return null
-  return res.json()
+  const data = await res.json()
+  return data.course ?? data
 }
 
 function pickTeeBox(tees) {
