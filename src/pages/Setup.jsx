@@ -4,14 +4,31 @@ import { supabase } from '../lib/supabase'
 
 const GOLF_API_KEY = import.meta.env.VITE_GOLF_API_KEY
 
+const API_HEADERS = { Authorization: `Key ${GOLF_API_KEY}` }
+
 async function searchCourses(query) {
   const res = await fetch(
     `https://api.golfcourseapi.com/v1/search?search_query=${encodeURIComponent(query)}`,
-    { headers: { Authorization: `Key ${GOLF_API_KEY}` } }
+    { headers: API_HEADERS }
   )
   if (!res.ok) return []
   const data = await res.json()
   return data.courses ?? []
+}
+
+async function fetchCourse(id) {
+  const res = await fetch(`https://api.golfcourseapi.com/v1/courses/${id}`, { headers: API_HEADERS })
+  if (!res.ok) return null
+  return res.json()
+}
+
+function pickTeeBox(tees) {
+  const male = tees?.male ?? []
+  const pool = male.length ? male : (tees?.female ?? [])
+  if (!pool.length) return null
+  const blue = pool.find(t => t.tee_name?.toLowerCase() === 'blue')
+  if (blue) return blue
+  return pool.reduce((best, t) => (t.total_yards > best.total_yards ? t : best), pool[0])
 }
 
 const generatePin = () => String(Math.floor(10 + Math.random() * 90))
@@ -61,15 +78,19 @@ export default function Setup() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  function applyCourse(course) {
-    const teeBox = course.tees?.male?.[0] ?? course.tees?.female?.[0]
+  async function applyCourse(course) {
+    setShowDropdown(false)
+    setCourseSearching(true)
+    const full = await fetchCourse(course.id)
+    setCourseSearching(false)
+    if (!full) return
+    const teeBox = pickTeeBox(full.tees)
     if (!teeBox?.holes?.length) return
     const holes = teeBox.holes
     const n = holes.length === 9 ? 9 : 18
     setNumHoles(n)
     setPars(holes.slice(0, n).map(h => Math.max(3, Math.min(5, h.par))))
-    setSelectedCourse(course)
-    setShowDropdown(false)
+    setSelectedCourse({ ...course, _tee: teeBox.tee_name })
   }
 
   function handleNumHoles(n) {
@@ -199,7 +220,7 @@ export default function Setup() {
               )}
               {selectedCourse && (
                 <p className="text-xs text-masters-green mt-1">
-                  Pars loaded from {selectedCourse.club_name} — you can still edit them in the next step.
+                  Pars loaded from {selectedCourse.club_name} ({selectedCourse._tee} tees) — you can still edit them in the next step.
                 </p>
               )}
             </div>
