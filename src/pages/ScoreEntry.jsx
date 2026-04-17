@@ -9,13 +9,12 @@ function ScoreBadge({ strokes, rel }) {
     )
   }
 
-  const textColor = rel < 0 ? 'text-masters-green' : rel === 0 ? 'text-gray-900' : 'text-under-par'
-  const num = <span className={`text-2xl font-bold ${textColor}`}>{strokes}</span>
+  const num = <span className="text-2xl font-bold text-gray-900">{strokes}</span>
 
   if (rel <= -2) {
     return (
-      <div className="w-14 h-14 rounded-full border-2 border-masters-green flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full border-2 border-masters-green flex items-center justify-center">
+      <div className="w-14 h-14 rounded-full border-2 border-gray-900 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-gray-900 flex items-center justify-center">
           {num}
         </div>
       </div>
@@ -23,7 +22,7 @@ function ScoreBadge({ strokes, rel }) {
   }
   if (rel === -1) {
     return (
-      <div className="w-12 h-12 rounded-full border-2 border-masters-green flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full border-2 border-gray-900 flex items-center justify-center">
         {num}
       </div>
     )
@@ -37,14 +36,14 @@ function ScoreBadge({ strokes, rel }) {
   }
   if (rel === 1) {
     return (
-      <div className="w-12 h-12 border-2 border-under-par flex items-center justify-center">
+      <div className="w-12 h-12 border-2 border-gray-900 flex items-center justify-center">
         {num}
       </div>
     )
   }
   return (
-    <div className="w-14 h-14 border-2 border-under-par flex items-center justify-center">
-      <div className="w-10 h-10 border-2 border-under-par flex items-center justify-center">
+    <div className="w-14 h-14 border-2 border-gray-900 flex items-center justify-center">
+      <div className="w-10 h-10 border-2 border-gray-900 flex items-center justify-center">
         {num}
       </div>
     </div>
@@ -121,19 +120,21 @@ export default function ScoreEntry() {
 
   function scoreLabel(rel) {
     if (rel === null) return ''
-    if (rel <= -2) return 'Eagle'
+    if (rel <= -3) return 'Albatross'
+    if (rel === -2) return 'Eagle'
     if (rel === -1) return 'Birdie'
     if (rel === 0) return 'Par'
     if (rel === 1) return 'Bogey'
-    if (rel === 2) return 'Double'
+    if (rel === 2) return 'Double Bogey'
+    if (rel === 3) return 'Triple Bogey'
     return `+${rel}`
   }
 
   function scoreColor(rel) {
     if (rel === null) return ''
-    if (rel < 0) return 'text-under-par font-bold'
-    if (rel === 0) return 'text-gray-500'
-    return 'text-gray-700'
+    if (rel < 0) return 'text-masters-green font-bold'
+    if (rel === 0) return 'text-gray-900 font-bold'
+    return 'text-under-par font-bold'
   }
 
   if (!scramble) return (
