@@ -48,20 +48,20 @@ export default function Home() {
         {/* Join a scramble */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
           <div className="bg-masters-green px-5 py-3">
-            <h2 className="text-masters-gold font-bold text-lg">Join a Scramble</h2>
+            <h2 className="text-masters-gold font-bold text-lg">Join a Match</h2>
           </div>
           <div className="p-5 flex flex-col gap-4">
             {loading ? (
-              <p className="text-gray-400 text-sm text-center py-2">Loading scrambles...</p>
+              <p className="text-gray-400 text-sm text-center py-2">Loading matches...</p>
             ) : scrambles.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-2">No scrambles yet. Create one below.</p>
+              <p className="text-gray-400 text-sm text-center py-2">No matches yet. Create one below.</p>
             ) : (
               <select
                 value={selected}
                 onChange={(e) => setSelected(e.target.value)}
                 className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:border-masters-green focus:outline-none bg-white"
               >
-                <option value="">Select a scramble...</option>
+                <option value="">Select a match...</option>
                 {scrambles.map(s => (
                   <option key={s.id} value={s.id}>
                     {s.name} — {formatDate(s.date)}
@@ -74,7 +74,7 @@ export default function Home() {
               disabled={!selected}
               className="bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Join Scramble
+              Join Match
             </button>
           </div>
         </div>
@@ -93,13 +93,13 @@ export default function Home() {
           </div>
           <div className="p-5">
             <p className="text-gray-600 text-sm mb-4">
-              Set up a new scramble, enter hole pars, and create teams with PINs.
+              Set up a new match, enter hole pars, and create teams with PINs.
             </p>
             <button
               onClick={() => navigate('/setup')}
               className="w-full bg-masters-gold text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity"
             >
-              Create New Scramble
+              Create New Match
             </button>
           </div>
         </div>

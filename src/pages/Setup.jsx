@@ -46,9 +46,13 @@ export default function Setup() {
 
   const [scrambleName, setScrambleName] = useState('')
   const [scrambleDate, setScrambleDate] = useState(new Date().toISOString().split('T')[0])
-  const [numHoles, setNumHoles] = useState(18)
+  const [holeMode, setHoleMode] = useState('18') // '18', 'front9', 'back9'
   const [pars, setPars] = useState(Array(18).fill(4))
   const [teams, setTeams] = useState([0, 1, 2, 3].map(defaultTeam))
+  const [courseHoles, setCourseHoles] = useState(null)
+
+  const numHoles = holeMode === '18' ? 18 : 9
+  const startingHole = holeMode === 'back9' ? 10 : 1
 
   const [courseQuery, setCourseQuery] = useState('')
   const [courseResults, setCourseResults] = useState([])
@@ -79,6 +83,11 @@ export default function Setup() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  function parsForMode(holes, mode) {
+    const slice = mode === 'back9' ? holes.slice(9, 18) : mode === '18' ? holes.slice(0, 18) : holes.slice(0, 9)
+    return slice.map(h => Math.max(3, Math.min(5, h.par)))
+  }
+
   async function applyCourse(course) {
     setShowDropdown(false)
     setCourseSearching(true)
@@ -87,10 +96,8 @@ export default function Setup() {
       if (!full) throw new Error('No course data returned')
       const teeBox = pickTeeBox(full.tees)
       if (!teeBox?.holes?.length) throw new Error('No hole data for this course')
-      const holes = teeBox.holes
-      const n = holes.length === 9 ? 9 : 18
-      setNumHoles(n)
-      setPars(holes.slice(0, n).map(h => Math.max(3, Math.min(5, h.par))))
+      setCourseHoles(teeBox.holes)
+      setPars(parsForMode(teeBox.holes, holeMode))
       setSelectedCourse({ ...course, _tee: teeBox.tee_name })
     } catch (err) {
       setError(`Could not load course data: ${err.message}`)
@@ -99,9 +106,13 @@ export default function Setup() {
     }
   }
 
-  function handleNumHoles(n) {
-    setNumHoles(n)
-    setPars(Array(n).fill(4))
+  function handleHoleMode(mode) {
+    setHoleMode(mode)
+    if (courseHoles) {
+      setPars(parsForMode(courseHoles, mode))
+    } else {
+      setPars(Array(mode === '18' ? 18 : 9).fill(4))
+    }
   }
 
   function setPar(index, value) {
@@ -142,7 +153,7 @@ export default function Setup() {
 
     if (e1) { setSaving(false); setError('Failed to create scramble. Try again.'); return }
 
-    const holesData = pars.map((par, i) => ({ scramble_id: scramble.id, hole_number: i + 1, par }))
+    const holesData = pars.map((par, i) => ({ scramble_id: scramble.id, hole_number: startingHole + i, par }))
     const { error: e2 } = await supabase.from('holes').insert(holesData)
     if (e2) { setSaving(false); setError('Failed to save holes.'); return }
 
@@ -155,13 +166,11 @@ export default function Setup() {
   }
 
   const totalPar = pars.reduce((a, b) => a + b, 0)
-  const frontPar = pars.slice(0, 9).reduce((a, b) => a + b, 0)
-  const backPar = numHoles === 18 ? pars.slice(9).reduce((a, b) => a + b, 0) : 0
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-masters-green py-5 text-center shadow-lg">
-        <h1 className="text-masters-gold text-2xl font-bold tracking-wide">New Scramble Setup</h1>
+        <h1 className="text-masters-gold text-2xl font-bold tracking-wide">New Match Setup</h1>
         <div className="flex justify-center gap-2 mt-3">
           {[1, 2, 3].map(s => (
             <div key={s} className={`w-8 h-1 rounded-full ${step >= s ? 'bg-masters-gold' : 'bg-masters-darkgreen'}`} />
@@ -173,9 +182,9 @@ export default function Setup() {
         {/* Step 1: Scramble Details */}
         {step === 1 && (
           <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col gap-5">
-            <h2 className="text-masters-green text-xl font-bold">Step 1: Scramble Details</h2>
+            <h2 className="text-masters-green text-xl font-bold">Step 1: Match Details</h2>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Scramble Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Match Name</label>
               <input
                 type="text"
                 value={scrambleName}
@@ -243,15 +252,15 @@ export default function Setup() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Number of Holes</label>
               <div className="flex gap-3">
-                {[9, 18].map(n => (
+                {[['18', '18 Holes'], ['front9', 'Front 9'], ['back9', 'Back 9']].map(([mode, label]) => (
                   <button
-                    key={n}
-                    onClick={() => handleNumHoles(n)}
-                    className={`flex-1 py-3 rounded-lg font-bold border-2 transition-colors ${numHoles === n
+                    key={mode}
+                    onClick={() => handleHoleMode(mode)}
+                    className={`flex-1 py-3 rounded-lg font-bold border-2 transition-colors ${holeMode === mode
                       ? 'bg-masters-green text-white border-masters-green'
                       : 'bg-white text-masters-green border-masters-green hover:bg-masters-green hover:text-white'}`}
                   >
-                    {n} Holes
+                    {label}
                   </button>
                 ))}
               </div>
@@ -272,51 +281,49 @@ export default function Setup() {
             <h2 className="text-masters-green text-xl font-bold">Step 2: Hole Pars</h2>
             <p className="text-gray-500 text-sm">Set the par for each hole (3, 4, or 5).</p>
 
-            {/* Front 9 */}
-            <div>
-              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">Front 9</h3>
-              <div className="grid grid-cols-9 gap-1 text-center mb-1">
-                {pars.slice(0, 9).map((_, i) => (
-                  <div key={i} className="text-xs text-gray-400">{i + 1}</div>
-                ))}
-              </div>
-              <div className="grid grid-cols-9 gap-1">
-                {pars.slice(0, 9).map((p, i) => (
-                  <input
-                    key={i}
-                    type="number"
-                    value={p}
-                    onChange={(e) => setPar(i, e.target.value)}
-                    min={3} max={5}
-                    className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none"
-                  />
-                ))}
-              </div>
-              <div className="text-right text-sm text-gray-500 mt-1">OUT: <strong>{frontPar}</strong></div>
-            </div>
-
-            {/* Back 9 */}
-            {numHoles === 18 && (
+            {holeMode === '18' ? (
+              <>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">Front 9</h3>
+                  <div className="grid grid-cols-9 gap-1 text-center mb-1">
+                    {pars.slice(0, 9).map((_, i) => <div key={i} className="text-xs text-gray-400">{i + 1}</div>)}
+                  </div>
+                  <div className="grid grid-cols-9 gap-1">
+                    {pars.slice(0, 9).map((p, i) => (
+                      <input key={i} type="number" value={p} onChange={(e) => setPar(i, e.target.value)}
+                        min={3} max={5} className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none" />
+                    ))}
+                  </div>
+                  <div className="text-right text-sm text-gray-500 mt-1">OUT: <strong>{pars.slice(0,9).reduce((a,b)=>a+b,0)}</strong></div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">Back 9</h3>
+                  <div className="grid grid-cols-9 gap-1 text-center mb-1">
+                    {pars.slice(9).map((_, i) => <div key={i} className="text-xs text-gray-400">{i + 10}</div>)}
+                  </div>
+                  <div className="grid grid-cols-9 gap-1">
+                    {pars.slice(9).map((p, i) => (
+                      <input key={i+9} type="number" value={p} onChange={(e) => setPar(i+9, e.target.value)}
+                        min={3} max={5} className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none" />
+                    ))}
+                  </div>
+                  <div className="text-right text-sm text-gray-500 mt-1">IN: <strong>{pars.slice(9).reduce((a,b)=>a+b,0)}</strong></div>
+                </div>
+              </>
+            ) : (
               <div>
-                <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">Back 9</h3>
+                <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
+                  {holeMode === 'back9' ? 'Back 9' : 'Front 9'}
+                </h3>
                 <div className="grid grid-cols-9 gap-1 text-center mb-1">
-                  {pars.slice(9).map((_, i) => (
-                    <div key={i} className="text-xs text-gray-400">{i + 10}</div>
-                  ))}
+                  {pars.map((_, i) => <div key={i} className="text-xs text-gray-400">{startingHole + i}</div>)}
                 </div>
                 <div className="grid grid-cols-9 gap-1">
-                  {pars.slice(9).map((p, i) => (
-                    <input
-                      key={i + 9}
-                      type="number"
-                      value={p}
-                      onChange={(e) => setPar(i + 9, e.target.value)}
-                      min={3} max={5}
-                      className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none"
-                    />
+                  {pars.map((p, i) => (
+                    <input key={i} type="number" value={p} onChange={(e) => setPar(i, e.target.value)}
+                      min={3} max={5} className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none" />
                   ))}
                 </div>
-                <div className="text-right text-sm text-gray-500 mt-1">IN: <strong>{backPar}</strong></div>
               </div>
             )}
 
@@ -411,7 +418,7 @@ export default function Setup() {
                 disabled={saving}
                 className="flex-grow bg-masters-gold text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {saving ? 'Creating...' : '🏌️ Create Scramble'}
+                {saving ? 'Creating...' : '🏌️ Create Match'}
               </button>
             </div>
           </div>

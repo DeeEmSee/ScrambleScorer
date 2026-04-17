@@ -21,7 +21,7 @@ export default function ScramblePage() {
     <div className="min-h-screen flex flex-col">
       <header className="bg-masters-green py-6 text-center shadow-lg">
         <div className="text-4xl mb-1">🏌️</div>
-        <h1 className="text-masters-gold text-2xl font-bold">Scramble Created!</h1>
+        <h1 className="text-masters-gold text-2xl font-bold">Match Created!</h1>
       </header>
 
       <main className="flex-1 max-w-md mx-auto w-full px-4 py-6 flex flex-col gap-6">

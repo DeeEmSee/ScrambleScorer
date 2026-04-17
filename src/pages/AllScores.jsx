@@ -6,11 +6,11 @@ import Layout from '../components/Layout'
 function scoreStyle(strokes, par) {
   if (!strokes || !par) return 'bg-white text-gray-400'
   const rel = strokes - par
-  if (rel <= -2) return 'bg-blue-100 text-blue-800 font-bold'
-  if (rel === -1) return 'bg-red-100 text-under-par font-bold'
+  if (rel <= -2) return 'bg-red-200 text-red-800 font-bold'
+  if (rel === -1) return 'bg-red-100 text-red-700 font-bold'
   if (rel === 0) return 'bg-white text-gray-700'
-  if (rel === 1) return 'bg-gray-100 text-gray-600'
-  return 'bg-gray-200 text-gray-600'
+  if (rel === 1) return 'bg-gray-100 text-gray-500'
+  return 'bg-gray-200 text-gray-500'
 }
 
 export default function AllScores() {
@@ -96,7 +96,14 @@ export default function AllScores() {
             <div key={team.id} className="bg-white rounded-lg shadow-md border border-gray-200 mb-5 overflow-hidden">
               {/* Team header */}
               <div className="bg-masters-green px-4 py-3 flex items-center justify-between">
-                <h3 className="text-white font-bold text-base">{team.name}</h3>
+                <h3 className="text-white font-bold text-base">
+                  {team.name}
+                  {holesPlayed > 0 && (
+                    <span className={`ml-2 text-sm font-bold ${rel < 0 ? 'text-yellow-300' : 'text-white opacity-80'}`}>
+                      ({formatRel(rel, holesPlayed)})
+                    </span>
+                  )}
+                </h3>
                 <div className="text-right">
                   {holesPlayed > 0 ? (
                     <>
@@ -185,7 +192,7 @@ export default function AllScores() {
 
               {/* Legend */}
               <div className="flex gap-4 px-3 py-2 bg-gray-50 border-t border-gray-100 text-xs text-gray-400">
-                <span><span className="inline-block w-3 h-3 rounded-sm bg-blue-100 mr-1"></span>Eagle</span>
+                <span><span className="inline-block w-3 h-3 rounded-sm bg-red-200 mr-1"></span>Eagle+</span>
                 <span><span className="inline-block w-3 h-3 rounded-sm bg-red-100 mr-1"></span>Birdie</span>
                 <span><span className="inline-block w-3 h-3 rounded-sm bg-gray-100 mr-1"></span>Bogey</span>
               </div>

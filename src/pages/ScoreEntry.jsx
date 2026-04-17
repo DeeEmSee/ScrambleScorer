@@ -9,42 +9,40 @@ function ScoreBadge({ strokes, rel }) {
     )
   }
 
-  const num = <span className="text-2xl font-bold text-gray-900">{strokes}</span>
-
   if (rel <= -2) {
     return (
-      <div className="w-14 h-14 rounded-full border-2 border-gray-900 flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full border-2 border-gray-900 flex items-center justify-center">
-          {num}
+      <div className="w-14 h-14 rounded-full border-2 border-red-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-red-600 flex items-center justify-center">
+          <span className="text-2xl font-bold text-red-600">{strokes}</span>
         </div>
       </div>
     )
   }
   if (rel === -1) {
     return (
-      <div className="w-12 h-12 rounded-full border-2 border-gray-900 flex items-center justify-center">
-        {num}
+      <div className="w-12 h-12 rounded-full border-2 border-red-600 flex items-center justify-center">
+        <span className="text-2xl font-bold text-red-600">{strokes}</span>
       </div>
     )
   }
   if (rel === 0) {
     return (
       <div className="w-12 h-12 flex items-center justify-center">
-        {num}
+        <span className="text-2xl font-bold text-gray-900">{strokes}</span>
       </div>
     )
   }
   if (rel === 1) {
     return (
-      <div className="w-12 h-12 border-2 border-gray-900 flex items-center justify-center">
-        {num}
+      <div className="w-12 h-12 border-2 border-blue-800 flex items-center justify-center">
+        <span className="text-2xl font-bold text-blue-800">{strokes}</span>
       </div>
     )
   }
   return (
-    <div className="w-14 h-14 border-2 border-gray-900 flex items-center justify-center">
-      <div className="w-10 h-10 border-2 border-gray-900 flex items-center justify-center">
-        {num}
+    <div className="w-14 h-14 border-2 border-blue-800 flex items-center justify-center">
+      <div className="w-10 h-10 border-2 border-blue-800 flex items-center justify-center">
+        <span className="text-2xl font-bold text-blue-800">{strokes}</span>
       </div>
     </div>
   )
@@ -132,9 +130,9 @@ export default function ScoreEntry() {
 
   function scoreColor(rel) {
     if (rel === null) return ''
-    if (rel < 0) return 'text-masters-green font-bold'
+    if (rel < 0) return 'text-red-600 font-bold'
     if (rel === 0) return 'text-gray-900 font-bold'
-    return 'text-under-par font-bold'
+    return 'text-blue-800 font-bold'
   }
 
   if (!scramble) return (
