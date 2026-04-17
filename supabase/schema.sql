@@ -6,8 +6,12 @@ create table scrambles (
   code text unique not null,
   name text not null,
   num_holes integer not null,
+  date date not null default current_date,
   created_at timestamp with time zone default now()
 );
+
+-- If you already ran the schema, add the column with:
+-- alter table scrambles add column date date not null default current_date;
 
 create table holes (
   id uuid default gen_random_uuid() primary key,

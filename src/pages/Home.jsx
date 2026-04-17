@@ -1,33 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const [year, month, day] = dateStr.split('-')
+  const d = new Date(year, month - 1, day)
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 export default function Home() {
   const navigate = useNavigate()
-  const [code, setCode] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [scrambles, setScrambles] = useState([])
+  const [selected, setSelected] = useState('')
+  const [loading, setLoading] = useState(true)
 
-  async function joinScramble(e) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    const { data, error: err } = await supabase
-      .from('scrambles')
-      .select('id')
-      .eq('code', code.toUpperCase().trim())
-      .single()
-    setLoading(false)
-    if (err || !data) {
-      setError('Scramble not found. Check the code and try again.')
-      return
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from('scrambles')
+        .select('id, name, date, num_holes')
+        .order('date', { ascending: false })
+        .order('created_at', { ascending: false })
+      setScrambles(data || [])
+      setLoading(false)
     }
-    navigate(`/scramble/${data.id}/leaderboard`)
+    load()
+  }, [])
+
+  function join() {
+    if (selected) navigate(`/scramble/${selected}/leaderboard`)
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="bg-masters-green py-10 text-center shadow-lg">
         <div className="text-6xl mb-3">⛳</div>
         <h1 className="text-masters-gold text-4xl sm:text-5xl font-bold tracking-wide">
@@ -44,29 +50,33 @@ export default function Home() {
           <div className="bg-masters-green px-5 py-3">
             <h2 className="text-masters-gold font-bold text-lg">Join a Scramble</h2>
           </div>
-          <form onSubmit={joinScramble} className="p-5 flex flex-col gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1 font-medium">
-                Enter your scramble code
-              </label>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="e.g. AB12CD"
-                maxLength={6}
-                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-2xl text-center font-bold tracking-widest uppercase focus:border-masters-green focus:outline-none"
-              />
-            </div>
-            {error && <p className="text-under-par text-sm">{error}</p>}
+          <div className="p-5 flex flex-col gap-4">
+            {loading ? (
+              <p className="text-gray-400 text-sm text-center py-2">Loading scrambles...</p>
+            ) : scrambles.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-2">No scrambles yet. Create one below.</p>
+            ) : (
+              <select
+                value={selected}
+                onChange={(e) => setSelected(e.target.value)}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:border-masters-green focus:outline-none bg-white"
+              >
+                <option value="">Select a scramble...</option>
+                {scrambles.map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} — {formatDate(s.date)}
+                  </option>
+                ))}
+              </select>
+            )}
             <button
-              type="submit"
-              disabled={!code.trim() || loading}
+              onClick={join}
+              disabled={!selected}
               className="bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Searching...' : 'Join Scramble'}
+              Join Scramble
             </button>
-          </form>
+          </div>
         </div>
 
         {/* Divider */}

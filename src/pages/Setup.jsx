@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const generatePin = () => String(Math.floor(1000 + Math.random() * 9000))
+const generatePin = () => String(Math.floor(10 + Math.random() * 90))
 const generateCode = () => Math.random().toString(36).substr(2, 6).toUpperCase()
 
-const defaultTeam = () => ({ name: '', pin: generatePin() })
+const defaultPins = ['11', '22', '33', '44', '55', '66', '77', '88']
+const defaultTeam = (index) => ({ name: '', pin: defaultPins[index] ?? generatePin() })
 
 export default function Setup() {
   const navigate = useNavigate()
@@ -14,9 +15,10 @@ export default function Setup() {
   const [error, setError] = useState('')
 
   const [scrambleName, setScrambleName] = useState('')
+  const [scrambleDate, setScrambleDate] = useState(new Date().toISOString().split('T')[0])
   const [numHoles, setNumHoles] = useState(18)
   const [pars, setPars] = useState(Array(18).fill(4))
-  const [teams, setTeams] = useState([defaultTeam(), defaultTeam(), defaultTeam(), defaultTeam()])
+  const [teams, setTeams] = useState([0, 1, 2, 3].map(defaultTeam))
 
   function handleNumHoles(n) {
     setNumHoles(n)
@@ -29,7 +31,7 @@ export default function Setup() {
   }
 
   function addTeam() {
-    setTeams(prev => [...prev, defaultTeam()])
+    setTeams(prev => [...prev, defaultTeam(prev.length)])
   }
 
   function removeTeam(i) {
@@ -55,7 +57,7 @@ export default function Setup() {
 
     const { data: scramble, error: e1 } = await supabase
       .from('scrambles')
-      .insert({ code, name: scrambleName.trim(), num_holes: numHoles })
+      .insert({ code, name: scrambleName.trim(), num_holes: numHoles, date: scrambleDate })
       .select()
       .single()
 
@@ -100,6 +102,15 @@ export default function Setup() {
                 value={scrambleName}
                 onChange={(e) => setScrambleName(e.target.value)}
                 placeholder="e.g. Spring Classic 2025"
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <input
+                type="date"
+                value={scrambleDate}
+                onChange={(e) => setScrambleDate(e.target.value)}
                 className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none"
               />
             </div>
@@ -229,7 +240,7 @@ export default function Setup() {
                     <input
                       type="text"
                       value={team.pin}
-                      onChange={(e) => updateTeam(i, 'pin', e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      onChange={(e) => updateTeam(i, 'pin', e.target.value.replace(/\D/g, '').slice(0, 2))}
                       maxLength={4}
                       className="w-14 text-center font-bold py-2 focus:outline-none text-masters-green"
                     />

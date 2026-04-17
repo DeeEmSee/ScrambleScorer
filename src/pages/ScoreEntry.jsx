@@ -144,7 +144,7 @@ export default function ScoreEntry() {
           <input
             type="number"
             value={pin}
-            onChange={(e) => setPin(e.target.value.slice(0, 4))}
+            onChange={(e) => setPin(e.target.value.slice(0, 2))}
             placeholder="PIN"
             className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-3xl text-center font-bold tracking-widest focus:border-masters-green focus:outline-none"
             onKeyDown={(e) => e.key === 'Enter' && verifyPin()}
@@ -152,7 +152,7 @@ export default function ScoreEntry() {
           {pinError && <p className="text-under-par text-sm">{pinError}</p>}
           <button
             onClick={verifyPin}
-            disabled={pin.length < 4}
+            disabled={pin.length < 2}
             className="bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50"
           >
             Verify PIN
