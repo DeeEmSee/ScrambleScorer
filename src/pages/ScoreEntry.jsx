@@ -185,14 +185,26 @@ export default function ScoreEntry() {
   // Score entry
   const front9 = holes.filter(h => h.hole_number <= 9)
   const back9 = holes.filter(h => h.hole_number >= 10)
-  const holesGroups = numHoles => numHoles === 18 ? [front9, back9] : [front9]
+
+  const scoredHoles = holes.filter(h => scores[h.hole_number] !== undefined)
+  const totalStrokes = scoredHoles.reduce((a, h) => a + scores[h.hole_number], 0)
+  const totalPar = scoredHoles.reduce((a, h) => a + h.par, 0)
+  const scoreToPar = scoredHoles.length > 0 ? totalStrokes - totalPar : null
+  const scoreDisplay = scoreToPar === null ? null : scoreToPar === 0 ? 'E' : scoreToPar > 0 ? `+${scoreToPar}` : String(scoreToPar)
 
   return (
     <Layout scrambleName={scramble.name}>
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-masters-green text-xl font-bold">{activeTeam.name}</h2>
+            <h2 className="text-masters-green text-xl font-bold">
+              {activeTeam.name}
+              {scoreDisplay !== null && (
+                <span className={`ml-2 text-base font-bold ${scoreToPar < 0 ? 'text-red-600' : scoreToPar > 0 ? 'text-blue-800' : 'text-gray-600'}`}>
+                  ({scoreDisplay})
+                </span>
+              )}
+            </h2>
             <p className="text-gray-400 text-sm">Tap +/- to enter each hole's score</p>
           </div>
           <button

@@ -141,7 +141,7 @@ export default function Leaderboard() {
             <p className="text-masters-gold text-sm mt-1 tracking-widest uppercase">Leaderboard</p>
           </div>
           {/* Column headers */}
-          <div className="grid grid-cols-[48px_1fr_90px_64px] bg-masters-darkgreen px-4 py-2 text-xs text-masters-gold uppercase tracking-widest font-bold">
+          <div className="grid grid-cols-[56px_1fr_100px_72px] bg-masters-darkgreen px-4 py-3 text-sm text-masters-gold uppercase tracking-widest font-bold">
             <div className="text-center">Pos</div>
             <div>Team</div>
             <div className="text-center">Score</div>
@@ -152,9 +152,9 @@ export default function Leaderboard() {
         {/* Standings */}
         <div className="bg-white shadow-lg sm:rounded-b-lg overflow-hidden border border-gray-200 border-t-0">
           {standings.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
-              <p className="text-4xl mb-3">🏌️</p>
-              <p className="font-medium">No scores yet</p>
+            <div className="text-center py-16 text-gray-400">
+              <p className="text-5xl mb-3">🏌️</p>
+              <p className="text-lg font-medium">No scores yet</p>
               <p className="text-sm mt-1">Scores will appear here as teams play.</p>
             </div>
           ) : (
@@ -168,41 +168,41 @@ export default function Leaderboard() {
               return (
                 <div
                   key={team.id}
-                  className={`grid grid-cols-[48px_1fr_90px_64px] items-center px-4 py-4 border-b border-gray-100 last:border-b-0 ${isLeader ? 'bg-yellow-50' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                  className={`grid grid-cols-[56px_1fr_100px_72px] items-center px-4 py-6 border-b border-gray-100 last:border-b-0 ${isLeader ? 'bg-yellow-50' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                 >
                   {/* Position */}
                   <div className="text-center">
                     {team.holesPlayed > 0 ? (
-                      <span className={`font-bold text-base ${isLeader ? 'text-masters-gold' : 'text-gray-500'}`}>
+                      <span className={`font-bold text-xl ${isLeader ? 'text-masters-gold' : 'text-gray-500'}`}>
                         {isTied ? 'T' : ''}{pos}
-                      </span>
-                    ) : (
-                      <span className="text-gray-300 text-base">—</span>
-                    )}
-                  </div>
-
-                  {/* Team name */}
-                  <div className={`text-base font-medium ${isLeader ? 'text-masters-green font-bold' : 'text-gray-800'}`}>
-                    {team.name}
-                    {isFinished && <span className="ml-2 text-xs text-gray-400">✓</span>}
-                  </div>
-
-                  {/* Score to par */}
-                  <div className="text-center">
-                    {team.holesPlayed > 0 ? (
-                      <span className={`font-bold text-xl ${
-                        team.scoreToPar < 0 ? 'text-red-600' : team.scoreToPar > 0 ? 'text-blue-800' : 'text-gray-700'
-                      }`}>
-                        {formatScore(team.scoreToPar)}
                       </span>
                     ) : (
                       <span className="text-gray-300 text-xl">—</span>
                     )}
                   </div>
 
+                  {/* Team name */}
+                  <div className={`text-lg font-medium ${isLeader ? 'text-masters-green font-bold' : 'text-gray-800'}`}>
+                    {team.name}
+                    {isFinished && <span className="ml-2 text-sm text-gray-400">✓</span>}
+                  </div>
+
+                  {/* Score to par */}
+                  <div className="text-center">
+                    {team.holesPlayed > 0 ? (
+                      <span className={`font-bold text-2xl ${
+                        team.scoreToPar < 0 ? 'text-red-600' : team.scoreToPar > 0 ? 'text-blue-800' : 'text-gray-700'
+                      }`}>
+                        {formatScore(team.scoreToPar)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-300 text-2xl">—</span>
+                    )}
+                  </div>
+
                   {/* Thru */}
                   <div className="text-center">
-                    <span className={`text-base font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-500'}`}>
+                    <span className={`text-lg font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-500'}`}>
                       {thru}
                     </span>
                   </div>
