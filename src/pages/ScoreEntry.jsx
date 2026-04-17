@@ -1,4 +1,55 @@
 import { useState, useEffect } from 'react'
+
+function ScoreBadge({ strokes, rel }) {
+  if (strokes === undefined || rel === null) {
+    return (
+      <div className="w-14 h-14 flex items-center justify-center">
+        <span className="text-3xl font-bold text-gray-300">—</span>
+      </div>
+    )
+  }
+
+  const textColor = rel < 0 ? 'text-masters-green' : rel === 0 ? 'text-gray-900' : 'text-under-par'
+  const num = <span className={`text-2xl font-bold ${textColor}`}>{strokes}</span>
+
+  if (rel <= -2) {
+    return (
+      <div className="w-14 h-14 rounded-full border-2 border-masters-green flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-masters-green flex items-center justify-center">
+          {num}
+        </div>
+      </div>
+    )
+  }
+  if (rel === -1) {
+    return (
+      <div className="w-12 h-12 rounded-full border-2 border-masters-green flex items-center justify-center">
+        {num}
+      </div>
+    )
+  }
+  if (rel === 0) {
+    return (
+      <div className="w-12 h-12 flex items-center justify-center">
+        {num}
+      </div>
+    )
+  }
+  if (rel === 1) {
+    return (
+      <div className="w-12 h-12 border-2 border-under-par flex items-center justify-center">
+        {num}
+      </div>
+    )
+  }
+  return (
+    <div className="w-14 h-14 border-2 border-under-par flex items-center justify-center">
+      <div className="w-10 h-10 border-2 border-under-par flex items-center justify-center">
+        {num}
+      </div>
+    </div>
+  )
+}
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
@@ -9,8 +60,6 @@ export default function ScoreEntry() {
   const [holes, setHoles] = useState([])
   const [teams, setTeams] = useState([])
   const [activeTeam, setActiveTeam] = useState(null)
-  const [pin, setPin] = useState('')
-  const [pinError, setPinError] = useState('')
   const [scores, setScores] = useState({})
   const [saving, setSaving] = useState({})
   const [savedHoles, setSavedHoles] = useState({})
@@ -29,23 +78,11 @@ export default function ScoreEntry() {
     load()
   }, [id])
 
-  async function verifyPin() {
-    setPinError('')
-    const { data } = await supabase
-      .from('teams')
-      .select('*')
-      .eq('id', activeTeam.id)
-      .eq('pin', pin.trim())
-      .single()
-    if (!data) {
-      setPinError('Incorrect PIN. Try again.')
-      return
-    }
-    // Load existing scores for this team
+  async function selectTeam(team) {
     const { data: existing } = await supabase
       .from('scores')
       .select('hole_number, strokes')
-      .eq('team_id', activeTeam.id)
+      .eq('team_id', team.id)
     const scoreMap = {}
     const savedMap = {}
     existing?.forEach(s => {
@@ -54,7 +91,7 @@ export default function ScoreEntry() {
     })
     setScores(scoreMap)
     setSavedHoles(savedMap)
-    setActiveTeam(prev => ({ ...prev, verified: true }))
+    setActiveTeam(team)
   }
 
   async function saveScore(holeNumber, strokes) {
@@ -117,46 +154,12 @@ export default function ScoreEntry() {
           {teams.map(team => (
             <button
               key={team.id}
-              onClick={() => { setActiveTeam(team); setPin('') }}
+              onClick={() => selectTeam(team)}
               className="bg-white border-2 border-gray-200 rounded-lg px-4 py-4 text-left font-medium text-gray-800 hover:border-masters-green hover:text-masters-green transition-colors"
             >
               {team.name}
             </button>
           ))}
-        </div>
-      </div>
-    </Layout>
-  )
-
-  // PIN entry
-  if (!activeTeam.verified) return (
-    <Layout scrambleName={scramble.name}>
-      <div className="max-w-sm mx-auto px-4 py-6">
-        <button
-          onClick={() => setActiveTeam(null)}
-          className="text-sm text-masters-green mb-4 flex items-center gap-1"
-        >
-          ← Back
-        </button>
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col gap-4">
-          <h2 className="text-masters-green text-xl font-bold">{activeTeam.name}</h2>
-          <p className="text-gray-500 text-sm">Enter your team's 4-digit PIN to access score entry.</p>
-          <input
-            type="number"
-            value={pin}
-            onChange={(e) => setPin(e.target.value.slice(0, 2))}
-            placeholder="PIN"
-            className="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-3xl text-center font-bold tracking-widest focus:border-masters-green focus:outline-none"
-            onKeyDown={(e) => e.key === 'Enter' && verifyPin()}
-          />
-          {pinError && <p className="text-under-par text-sm">{pinError}</p>}
-          <button
-            onClick={verifyPin}
-            disabled={pin.length < 2}
-            className="bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50"
-          >
-            Verify PIN
-          </button>
         </div>
       </div>
     </Layout>
@@ -176,7 +179,7 @@ export default function ScoreEntry() {
             <p className="text-gray-400 text-sm">Tap +/- to enter each hole's score</p>
           </div>
           <button
-            onClick={() => { setActiveTeam(null); setPin('') }}
+            onClick={() => setActiveTeam(null)}
             className="text-sm text-gray-400 hover:text-masters-green"
           >
             Switch Team
@@ -212,9 +215,7 @@ export default function ScoreEntry() {
                     >
                       −
                     </button>
-                    <div className="text-3xl font-bold w-10 text-center text-gray-800">
-                      {strokes ?? '—'}
-                    </div>
+                    <ScoreBadge strokes={strokes} rel={rel} />
                     <button
                       onClick={() => adjustScore(hole.hole_number, 1)}
                       className="w-10 h-10 rounded-full bg-masters-green text-white font-bold text-xl hover:bg-masters-darkgreen transition-colors active:scale-95"
