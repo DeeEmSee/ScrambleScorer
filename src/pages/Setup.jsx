@@ -1,6 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+
+const GOLF_API_KEY = import.meta.env.VITE_GOLF_API_KEY
+
+async function searchCourses(query) {
+  const res = await fetch(
+    `https://api.golfcourseapi.com/v1/search?search_query=${encodeURIComponent(query)}`,
+    { headers: { Authorization: `Key ${GOLF_API_KEY}` } }
+  )
+  if (!res.ok) return []
+  const data = await res.json()
+  return data.courses ?? []
+}
 
 const generatePin = () => String(Math.floor(10 + Math.random() * 90))
 const generateCode = () => Math.random().toString(36).substr(2, 6).toUpperCase()
@@ -19,6 +31,46 @@ export default function Setup() {
   const [numHoles, setNumHoles] = useState(18)
   const [pars, setPars] = useState(Array(18).fill(4))
   const [teams, setTeams] = useState([0, 1, 2, 3].map(defaultTeam))
+
+  const [courseQuery, setCourseQuery] = useState('')
+  const [courseResults, setCourseResults] = useState([])
+  const [courseSearching, setCourseSearching] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const searchTimeout = useRef(null)
+  const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    if (courseQuery.length < 3) { setCourseResults([]); setShowDropdown(false); return }
+    clearTimeout(searchTimeout.current)
+    searchTimeout.current = setTimeout(async () => {
+      setCourseSearching(true)
+      const results = await searchCourses(courseQuery)
+      setCourseResults(results)
+      setShowDropdown(results.length > 0)
+      setCourseSearching(false)
+    }, 400)
+    return () => clearTimeout(searchTimeout.current)
+  }, [courseQuery])
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowDropdown(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  function applyCourse(course) {
+    const teeBox = course.tees?.male?.[0] ?? course.tees?.female?.[0]
+    if (!teeBox?.holes?.length) return
+    const holes = teeBox.holes
+    const n = holes.length === 9 ? 9 : 18
+    setNumHoles(n)
+    setPars(holes.slice(0, n).map(h => Math.max(3, Math.min(5, h.par))))
+    setSelectedCourse(course)
+    setShowDropdown(false)
+  }
 
   function handleNumHoles(n) {
     setNumHoles(n)
@@ -105,6 +157,52 @@ export default function Setup() {
                 className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none"
               />
             </div>
+
+            <div className="relative" ref={dropdownRef}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Golf Course <span className="text-gray-400 font-normal">(optional — auto-fills hole pars)</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={courseQuery}
+                  onChange={(e) => { setCourseQuery(e.target.value); setSelectedCourse(null) }}
+                  onFocus={() => courseResults.length > 0 && setShowDropdown(true)}
+                  placeholder="Search by course or club name..."
+                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none pr-10"
+                />
+                {courseSearching && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">⏳</span>
+                )}
+                {selectedCourse && !courseSearching && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-masters-green text-sm">✓</span>
+                )}
+              </div>
+              {showDropdown && (
+                <ul className="absolute z-10 w-full bg-white border-2 border-masters-green rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+                  {courseResults.map(course => (
+                    <li
+                      key={course.id}
+                      onMouseDown={() => applyCourse(course)}
+                      className="px-4 py-3 hover:bg-masters-cream cursor-pointer border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="font-medium text-masters-green text-sm">{course.club_name}</div>
+                      {course.course_name !== course.club_name && (
+                        <div className="text-xs text-gray-500">{course.course_name}</div>
+                      )}
+                      {course.location && (
+                        <div className="text-xs text-gray-400">{[course.location.city, course.location.state].filter(Boolean).join(', ')}</div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {selectedCourse && (
+                <p className="text-xs text-masters-green mt-1">
+                  Pars loaded from {selectedCourse.club_name} — you can still edit them in the next step.
+                </p>
+              )}
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
               <input
@@ -135,7 +233,7 @@ export default function Setup() {
               disabled={!scrambleName.trim()}
               className="bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
-              Next: Enter Hole Pars →
+              {selectedCourse ? 'Next: Review Hole Pars →' : 'Next: Enter Hole Pars →'}
             </button>
           </div>
         )}
