@@ -27,19 +27,19 @@ export default function Layout({ children, scrambleName }) {
             <nav className="flex border-t border-masters-darkgreen">
               <Link
                 to={`/scramble/${id}/leaderboard`}
-                className={`flex-1 text-center py-2 text-sm font-medium ${isActive(`/scramble/${id}/leaderboard`)}`}
+                className={`flex-1 text-center py-4 text-base font-semibold ${isActive(`/scramble/${id}/leaderboard`)}`}
               >
                 Leaderboard
               </Link>
               <Link
                 to={`/scramble/${id}/score`}
-                className={`flex-1 text-center py-2 text-sm font-medium ${isActive(`/scramble/${id}/score`)}`}
+                className={`flex-1 text-center py-4 text-base font-semibold ${isActive(`/scramble/${id}/score`)}`}
               >
                 Enter Score
               </Link>
               <Link
                 to={`/scramble/${id}/scores`}
-                className={`flex-1 text-center py-2 text-sm font-medium ${isActive(`/scramble/${id}/scores`)}`}
+                className={`flex-1 text-center py-4 text-base font-semibold ${isActive(`/scramble/${id}/scores`)}`}
               >
                 All Scores
               </Link>
