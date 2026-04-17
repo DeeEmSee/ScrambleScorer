@@ -99,7 +99,7 @@ export default function AllScores() {
                 <h3 className="text-white font-bold text-base">
                   {team.name}
                   {holesPlayed > 0 && (
-                    <span className={`ml-2 text-sm font-bold ${rel < 0 ? 'text-yellow-300' : 'text-white opacity-80'}`}>
+                    <span className={`ml-2 text-sm font-bold ${rel < 0 ? 'text-red-300' : rel > 0 ? 'text-blue-300' : 'text-white opacity-80'}`}>
                       ({formatRel(rel, holesPlayed)})
                     </span>
                   )}

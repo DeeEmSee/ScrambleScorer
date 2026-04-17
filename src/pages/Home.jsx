@@ -40,7 +40,7 @@ export default function Home() {
           ScrambleScorer
         </h1>
         <p className="text-white text-sm mt-2 tracking-widest uppercase opacity-80">
-          Live Golf Scramble Scoring
+          Live Golf Match Scoring
         </p>
       </header>
 
@@ -93,7 +93,7 @@ export default function Home() {
           </div>
           <div className="p-5">
             <p className="text-gray-600 text-sm mb-4">
-              Set up a new match, enter hole pars, and create teams with PINs.
+              Set up a new match, enter hole pars, and create teams.
             </p>
             <button
               onClick={() => navigate('/setup')}

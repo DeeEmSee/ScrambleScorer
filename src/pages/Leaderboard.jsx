@@ -132,7 +132,7 @@ export default function Leaderboard() {
 
   return (
     <Layout scrambleName={scramble.name}>
-      <div className="max-w-2xl mx-auto px-0 sm:px-4 py-6">
+      <div className="w-full px-0 sm:px-4 py-4 sm:max-w-2xl sm:mx-auto">
         {/* Tournament Header — Masters Style */}
         <div className="bg-masters-green mx-0 sm:rounded-t-lg overflow-hidden shadow-lg">
           <div className="text-center py-5 px-4">
@@ -141,7 +141,7 @@ export default function Leaderboard() {
             <p className="text-masters-gold text-sm mt-1 tracking-widest uppercase">Leaderboard</p>
           </div>
           {/* Column headers */}
-          <div className="grid grid-cols-[40px_1fr_80px_60px] bg-masters-darkgreen px-4 py-2 text-xs text-masters-gold uppercase tracking-widest font-bold">
+          <div className="grid grid-cols-[48px_1fr_90px_64px] bg-masters-darkgreen px-4 py-2 text-xs text-masters-gold uppercase tracking-widest font-bold">
             <div className="text-center">Pos</div>
             <div>Team</div>
             <div className="text-center">Score</div>
@@ -168,21 +168,21 @@ export default function Leaderboard() {
               return (
                 <div
                   key={team.id}
-                  className={`grid grid-cols-[40px_1fr_80px_60px] items-center px-4 py-3 border-b border-gray-100 last:border-b-0 ${isLeader ? 'bg-yellow-50' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                  className={`grid grid-cols-[48px_1fr_90px_64px] items-center px-4 py-4 border-b border-gray-100 last:border-b-0 ${isLeader ? 'bg-yellow-50' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                 >
                   {/* Position */}
                   <div className="text-center">
                     {team.holesPlayed > 0 ? (
-                      <span className={`font-bold text-sm ${isLeader ? 'text-masters-gold' : 'text-gray-500'}`}>
+                      <span className={`font-bold text-base ${isLeader ? 'text-masters-gold' : 'text-gray-500'}`}>
                         {isTied ? 'T' : ''}{pos}
                       </span>
                     ) : (
-                      <span className="text-gray-300 text-sm">—</span>
+                      <span className="text-gray-300 text-base">—</span>
                     )}
                   </div>
 
                   {/* Team name */}
-                  <div className={`font-medium ${isLeader ? 'text-masters-green font-bold' : 'text-gray-800'}`}>
+                  <div className={`text-base font-medium ${isLeader ? 'text-masters-green font-bold' : 'text-gray-800'}`}>
                     {team.name}
                     {isFinished && <span className="ml-2 text-xs text-gray-400">✓</span>}
                   </div>
@@ -190,23 +190,19 @@ export default function Leaderboard() {
                   {/* Score to par */}
                   <div className="text-center">
                     {team.holesPlayed > 0 ? (
-                      <span className={`font-bold text-lg ${
-                        team.scoreToPar < 0
-                          ? 'text-under-par'
-                          : team.scoreToPar === 0
-                          ? 'text-gray-700'
-                          : 'text-gray-700'
+                      <span className={`font-bold text-xl ${
+                        team.scoreToPar < 0 ? 'text-red-600' : team.scoreToPar > 0 ? 'text-blue-800' : 'text-gray-700'
                       }`}>
                         {formatScore(team.scoreToPar)}
                       </span>
                     ) : (
-                      <span className="text-gray-300">—</span>
+                      <span className="text-gray-300 text-xl">—</span>
                     )}
                   </div>
 
                   {/* Thru */}
                   <div className="text-center">
-                    <span className={`text-sm font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-500'}`}>
+                    <span className={`text-base font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-500'}`}>
                       {thru}
                     </span>
                   </div>
