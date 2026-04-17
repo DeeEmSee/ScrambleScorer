@@ -89,6 +89,7 @@ export default function ScoreEntry() {
     setScores(scoreMap)
     setSavedHoles(savedMap)
     setActiveTeam(team)
+    localStorage.setItem(`scramble_team_${id}`, JSON.stringify({ id: team.id, name: team.name }))
   }
 
   async function saveScore(holeNumber, strokes) {

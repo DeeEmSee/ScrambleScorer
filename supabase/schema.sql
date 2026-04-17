@@ -58,3 +58,17 @@ create policy "public update scores" on scores for update using (true);
 
 -- Enable realtime for live leaderboard updates
 alter publication supabase_realtime add table scores;
+
+create table messages (
+  id uuid default gen_random_uuid() primary key,
+  scramble_id uuid references scrambles(id) on delete cascade not null,
+  team_id uuid references teams(id) on delete cascade not null,
+  team_name text not null,
+  text text not null,
+  created_at timestamp with time zone default now()
+);
+
+alter table messages enable row level security;
+create policy "public read messages" on messages for select using (true);
+create policy "public insert messages" on messages for insert with check (true);
+alter publication supabase_realtime add table messages;

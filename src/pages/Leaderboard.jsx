@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
 
@@ -15,6 +15,14 @@ export default function Leaderboard() {
   const [scramble, setScramble] = useState(null)
   const [standings, setStandings] = useState([])
   const [lastUpdated, setLastUpdated] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [sending, setSending] = useState(false)
+  const messagesEndRef = useRef(null)
+  const myTeam = useState(() => {
+    try { return JSON.parse(localStorage.getItem(`scramble_team_${id}`) || 'null') }
+    catch { return null }
+  })[0]
 
   async function buildStandings(scrambleId) {
     const [{ data: holes }, { data: teams }, { data: scores }] = await Promise.all([
@@ -70,6 +78,32 @@ export default function Leaderboard() {
 
     return () => supabase.removeChannel(channel)
   }, [id])
+
+  useEffect(() => {
+    supabase.from('messages').select('*').eq('scramble_id', id)
+      .order('created_at', { ascending: true }).limit(100)
+      .then(({ data }) => setMessages(data || []))
+
+    const channel = supabase.channel(`messages-${id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `scramble_id=eq.${id}` },
+        payload => setMessages(prev => [...prev, payload.new]))
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [id])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  async function sendMessage() {
+    if (!chatInput.trim() || !myTeam || sending) return
+    setSending(true)
+    await supabase.from('messages').insert({
+      scramble_id: id, team_id: myTeam.id, team_name: myTeam.name, text: chatInput.trim(),
+    })
+    setChatInput('')
+    setSending(false)
+  }
 
   const totalPar = scramble ? null : null
 
@@ -187,6 +221,59 @@ export default function Leaderboard() {
             Live · Updated {lastUpdated.toLocaleTimeString()}
           </p>
         )}
+
+        {/* Match Chat */}
+        <div className="bg-white shadow-lg sm:rounded-lg overflow-hidden border border-gray-200 mt-4">
+          <div className="bg-masters-green px-4 py-3">
+            <h2 className="text-masters-gold font-bold text-sm uppercase tracking-widest">Match Chat</h2>
+          </div>
+          <div className="h-64 overflow-y-auto px-4 py-3 flex flex-col gap-3">
+            {messages.length === 0 && (
+              <p className="text-gray-400 text-sm text-center mt-8">No messages yet.</p>
+            )}
+            {messages.map(msg => {
+              const isMe = msg.team_id === myTeam?.id
+              return (
+                <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                  {!isMe && <span className="text-xs font-bold text-masters-green mb-0.5">{msg.team_name}</span>}
+                  <div className={`rounded-lg px-3 py-2 max-w-xs text-sm break-words ${isMe ? 'bg-masters-green text-white' : 'bg-gray-100 text-gray-800'}`}>
+                    {msg.text}
+                  </div>
+                  <span className="text-xs text-gray-400 mt-0.5">
+                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              )
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+          <div className="border-t border-gray-200 p-3 flex gap-2">
+            {myTeam ? (
+              <>
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={e => setChatInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && sendMessage()}
+                  placeholder={`Message as ${myTeam.name}…`}
+                  maxLength={200}
+                  className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-masters-green focus:outline-none"
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={!chatInput.trim() || sending}
+                  className="bg-masters-green text-white font-bold px-4 py-2 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </>
+            ) : (
+              <p className="text-gray-400 text-sm py-1 text-center w-full">
+                <Link to={`/scramble/${id}/score`} className="text-masters-green underline">Select your team</Link> in Score Entry to chat
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   )
