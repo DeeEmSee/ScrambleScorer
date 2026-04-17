@@ -160,7 +160,7 @@ export default function Leaderboard() {
           ) : (
             standings.map((team, i) => {
               const pos = getPosition(i, standings)
-              const isTied = i > 0 && standings[i - 1].scoreToPar === team.scoreToPar
+              const isTied = team.scoreToPar !== null && standings.filter(t => t.scoreToPar === team.scoreToPar).length > 1
               const isLeader = pos === 1 && team.holesPlayed > 0
               const thru = thruLabel(team, scramble)
               const isFinished = thru === 'F'
