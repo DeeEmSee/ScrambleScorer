@@ -232,6 +232,15 @@ export default function Leaderboard() {
               <p className="text-gray-400 text-sm text-center mt-8">No messages yet.</p>
             )}
             {messages.map(msg => {
+              if (msg.type === 'score') {
+                return (
+                  <div key={msg.id} className="text-center py-0.5">
+                    <span className="text-xs text-gray-400 italic">
+                      <span className="font-semibold text-gray-500">{msg.team_name}</span> {msg.text}
+                    </span>
+                  </div>
+                )
+              }
               const isMe = msg.team_id === myTeam?.id
               return (
                 <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>

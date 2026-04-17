@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function ScoreBadge({ strokes, rel }) {
   if (strokes === undefined || rel === null) {
@@ -60,6 +60,7 @@ export default function ScoreEntry() {
   const [scores, setScores] = useState({})
   const [saving, setSaving] = useState({})
   const [savedHoles, setSavedHoles] = useState({})
+  const scoreLogTimeouts = useRef({})
 
   useEffect(() => {
     async function load() {
@@ -71,6 +72,19 @@ export default function ScoreEntry() {
       setScramble(s)
       setHoles(h || [])
       setTeams(t || [])
+
+      const saved = JSON.parse(localStorage.getItem(`scramble_team_${id}`) || 'null')
+      if (saved && t) {
+        const match = t.find(team => team.id === saved.id)
+        if (match) {
+          const { data: existing } = await supabase.from('scores').select('hole_number, strokes').eq('team_id', match.id)
+          const scoreMap = {}, savedMap = {}
+          existing?.forEach(s => { scoreMap[s.hole_number] = s.strokes; savedMap[s.hole_number] = true })
+          setScores(scoreMap)
+          setSavedHoles(savedMap)
+          setActiveTeam(match)
+        }
+      }
     }
     load()
   }, [id])
@@ -104,10 +118,23 @@ export default function ScoreEntry() {
 
   function adjustScore(holeNumber, delta) {
     const par = holes.find(h => h.hole_number === holeNumber)?.par || 4
-    const current = scores[holeNumber] ?? par
-    const next = Math.max(1, Math.min(12, current + delta))
+    const isFirst = scores[holeNumber] === undefined
+    const next = isFirst ? par : Math.max(1, Math.min(12, scores[holeNumber] + delta))
     setScores(prev => ({ ...prev, [holeNumber]: next }))
     saveScore(holeNumber, next)
+    clearTimeout(scoreLogTimeouts.current[holeNumber])
+    scoreLogTimeouts.current[holeNumber] = setTimeout(() => logScoreToChat(holeNumber, next, par), 2000)
+  }
+
+  async function logScoreToChat(holeNumber, strokes, par) {
+    if (!activeTeam) return
+    const rel = strokes - par
+    const articles = { '-3': 'an albatross', '-2': 'an eagle', '-1': 'a birdie', '0': 'par', '1': 'a bogey', '2': 'a double bogey', '3': 'a triple bogey' }
+    const label = articles[String(rel)] ?? `+${rel}`
+    const text = rel === 0 ? `made par on hole ${holeNumber}` : `made ${label} on hole ${holeNumber}`
+    await supabase.from('messages').insert({
+      scramble_id: id, team_id: activeTeam.id, team_name: activeTeam.name, text, type: 'score',
+    })
   }
 
   function scoreRelPar(holeNumber) {

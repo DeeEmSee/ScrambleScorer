@@ -65,6 +65,7 @@ create table messages (
   team_id uuid references teams(id) on delete cascade not null,
   team_name text not null,
   text text not null,
+  type text not null default 'chat',
   created_at timestamp with time zone default now()
 );
 
