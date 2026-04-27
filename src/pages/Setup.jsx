@@ -32,10 +32,10 @@ function pickTeeBox(tees) {
   return pool.reduce((best, t) => (t.total_yards > best.total_yards ? t : best), pool[0])
 }
 
-const generatePin = () => String(Math.floor(10 + Math.random() * 90))
+const generatePin = () => String(Math.floor(1000 + Math.random() * 9000))
 const generateCode = () => Math.random().toString(36).substr(2, 6).toUpperCase()
 
-const defaultPins = ['11', '22', '33', '44', '55', '66', '77', '88']
+const defaultPins = ['1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888']
 const defaultTeam = (index) => ({ name: '', pin: defaultPins[index] ?? generatePin() })
 
 export default function Setup() {
@@ -49,6 +49,7 @@ export default function Setup() {
   const [holeMode, setHoleMode] = useState('18') // '18', 'front9', 'back9'
   const [pars, setPars] = useState(Array(18).fill(4))
   const [teams, setTeams] = useState([0, 1, 2, 3].map(defaultTeam))
+  const [requirePins, setRequirePins] = useState(false)
   const [courseHoles, setCourseHoles] = useState(null)
 
   const numHoles = holeMode === '18' ? 18 : 9
@@ -157,12 +158,12 @@ export default function Setup() {
     const { error: e2 } = await supabase.from('holes').insert(holesData)
     if (e2) { setSaving(false); setError('Failed to save holes.'); return }
 
-    const teamsData = teams.map(t => ({ scramble_id: scramble.id, name: t.name.trim(), pin: t.pin }))
+    const teamsData = teams.map(t => ({ scramble_id: scramble.id, name: t.name.trim(), pin: requirePins ? t.pin : null }))
     const { error: e3 } = await supabase.from('teams').insert(teamsData)
     if (e3) { setSaving(false); setError('Failed to save teams.'); return }
 
     setSaving(false)
-    navigate(`/scramble/${scramble.id}`, { state: { code, teams: teams.map(t => ({ name: t.name, pin: t.pin })) } })
+    navigate(`/scramble/${scramble.id}`, { state: { code, teams: teams.map(t => ({ name: t.name, pin: requirePins ? t.pin : null })) } })
   }
 
   const totalPar = pars.reduce((a, b) => a + b, 0)
@@ -354,8 +355,18 @@ export default function Setup() {
           <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col gap-5">
             <h2 className="text-masters-green text-xl font-bold">Step 3: Teams & PINs</h2>
             <p className="text-gray-500 text-sm">
-              Each team gets a 4-digit PIN. Share the PIN privately with each team — they'll use it to enter scores.
+              Enter team (or player) names. Optionally require and set a 4-digit PIN for each team. Share the PIN privately with each team — they'll use it to enter scores.
             </p>
+
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+              <div
+                onClick={() => setRequirePins(v => !v)}
+                className={`w-11 h-6 rounded-full transition-colors flex-shrink-0 flex items-center px-0.5 ${requirePins ? 'bg-masters-green' : 'bg-gray-300'}`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${requirePins ? 'translate-x-5' : 'translate-x-0'}`} />
+              </div>
+              <span className="text-sm font-medium text-gray-700">Require team PINs</span>
+            </label>
 
             <div className="flex flex-col gap-3">
               {teams.map((team, i) => (
@@ -368,23 +379,30 @@ export default function Setup() {
                     placeholder={`Team ${i + 1} name`}
                     className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-masters-green focus:outline-none"
                   />
-                  <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
-                    <span className="px-2 text-xs text-gray-400 bg-gray-50 border-r border-gray-300 py-2">PIN</span>
-                    <input
-                      type="text"
-                      value={team.pin}
-                      onChange={(e) => updateTeam(i, 'pin', e.target.value.replace(/\D/g, '').slice(0, 2))}
-                      maxLength={4}
-                      className="w-14 text-center font-bold py-2 focus:outline-none text-masters-green"
-                    />
-                    <button
-                      onClick={() => regeneratePin(i)}
-                      className="px-2 text-gray-400 hover:text-masters-green bg-gray-50 border-l border-gray-300 py-2 text-sm"
-                      title="Regenerate PIN"
-                    >
-                      ↺
-                    </button>
-                  </div>
+                  {requirePins ? (
+                    <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
+                      <span className="px-2 text-xs text-gray-400 bg-gray-50 border-r border-gray-300 py-2">PIN</span>
+                      <input
+                        type="text"
+                        value={team.pin}
+                        onChange={(e) => updateTeam(i, 'pin', e.target.value.replace(/\D/g, '').slice(0, 4))}
+                        maxLength={4}
+                        className="w-16 text-center font-bold py-2 focus:outline-none text-masters-green"
+                      />
+                      <button
+                        onClick={() => regeneratePin(i)}
+                        className="px-2 text-gray-400 hover:text-masters-green bg-gray-50 border-l border-gray-300 py-2 text-sm"
+                        title="Regenerate PIN"
+                      >
+                        ↺
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                      <span className="px-2 text-xs text-gray-300 bg-gray-50 border-r border-gray-200 py-2">PIN</span>
+                      <span className="w-16 text-center text-gray-300 font-medium py-2 text-sm">N/A</span>
+                    </div>
+                  )}
                   {teams.length > 2 && (
                     <button
                       onClick={() => removeTeam(i)}

@@ -47,6 +47,9 @@ export default function ScoreEntry() {
   const [holes, setHoles] = useState([])
   const [teams, setTeams] = useState([])
   const [activeTeam, setActiveTeam] = useState(null)
+  const [pendingTeam, setPendingTeam] = useState(null)
+  const [pinInput, setPinInput] = useState('')
+  const [pinError, setPinError] = useState(false)
   const [scores, setScores] = useState({})
   const [saving, setSaving] = useState({})
   const [savedHoles, setSavedHoles] = useState({})
@@ -57,7 +60,7 @@ export default function ScoreEntry() {
       const [{ data: s }, { data: h }, { data: t }] = await Promise.all([
         supabase.from('scrambles').select('*').eq('id', id).single(),
         supabase.from('holes').select('*').eq('scramble_id', id).order('hole_number'),
-        supabase.from('teams').select('id, name').eq('scramble_id', id).order('name'),
+        supabase.from('teams').select('id, name, pin').eq('scramble_id', id).order('name'),
       ])
       setScramble(s)
       setHoles(h || [])
@@ -78,6 +81,22 @@ export default function ScoreEntry() {
     }
     load()
   }, [id])
+
+  function openPinPrompt(team) {
+    if (!team.pin) { selectTeam(team); return }
+    setPendingTeam(team)
+    setPinInput('')
+    setPinError(false)
+  }
+
+  async function confirmPin() {
+    if (pinInput !== pendingTeam.pin) {
+      setPinError(true)
+      return
+    }
+    await selectTeam(pendingTeam)
+    setPendingTeam(null)
+  }
 
   async function selectTeam(team) {
     const { data: existing } = await supabase
@@ -171,7 +190,7 @@ export default function ScoreEntry() {
           {teams.map(team => (
             <button
               key={team.id}
-              onClick={() => selectTeam(team)}
+              onClick={() => openPinPrompt(team)}
               className="bg-white border-2 border-gray-200 rounded-lg px-4 py-4 text-left font-medium text-gray-800 hover:border-masters-green hover:text-masters-green transition-colors"
             >
               {team.name}
@@ -179,6 +198,40 @@ export default function ScoreEntry() {
           ))}
         </div>
       </div>
+
+      {pendingTeam && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-masters-green text-lg font-bold mb-1">{pendingTeam.name}</h3>
+            <p className="text-gray-500 text-sm mb-4">Enter your 4-digit PIN to continue.</p>
+            <input
+              type="number"
+              inputMode="numeric"
+              maxLength={4}
+              value={pinInput}
+              onChange={e => { setPinInput(e.target.value.slice(0, 4)); setPinError(false) }}
+              onKeyDown={e => e.key === 'Enter' && confirmPin()}
+              className={`w-full border-2 rounded-lg px-4 py-3 text-center text-2xl font-bold tracking-widest focus:outline-none ${pinError ? 'border-red-500 text-red-600' : 'border-gray-300 focus:border-masters-green'}`}
+              autoFocus
+            />
+            {pinError && <p className="text-red-500 text-sm mt-2 text-center">Incorrect PIN. Try again.</p>}
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setPendingTeam(null)}
+                className="flex-1 border-2 border-gray-200 rounded-lg py-2 text-gray-500 font-medium hover:border-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmPin}
+                className="flex-1 bg-masters-green text-white rounded-lg py-2 font-bold hover:bg-masters-darkgreen transition-colors"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 
