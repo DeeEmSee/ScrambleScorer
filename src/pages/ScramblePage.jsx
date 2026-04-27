@@ -19,16 +19,18 @@ export default function ScramblePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-masters-green py-6 text-center shadow-lg">
-        <div className="text-4xl mb-1">🏌️</div>
-        <h1 className="text-masters-gold text-2xl font-bold">Match Created!</h1>
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-3">
+          <span className="text-2xl">🏌️</span>
+          <h1 className="text-masters-green text-lg font-bold">Match Created!</h1>
+        </div>
       </header>
 
       <main className="flex-1 max-w-md mx-auto w-full px-4 py-6 flex flex-col gap-6">
         {/* Team PINs */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-          <div className="bg-masters-gold px-5 py-3">
-            <h2 className="text-white font-bold">Team PINs — Keep Private!</h2>
+          <div className="px-5 pt-4 pb-2 border-b border-gray-100">
+            <h2 className="text-gray-800 font-bold text-base">Team PINs — Keep Private!</h2>
           </div>
           <div className="p-5 flex flex-col gap-2">
             {teams.some(t => t.pin) ? (
@@ -69,9 +71,6 @@ export default function ScramblePage() {
         </div>
       </main>
 
-      <footer className="bg-masters-green text-center py-3">
-        <p className="text-masters-gold text-xs tracking-widest uppercase">ScrambleScorer</p>
-      </footer>
     </div>
   )
 }

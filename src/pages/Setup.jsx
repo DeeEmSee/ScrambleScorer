@@ -170,12 +170,14 @@ export default function Setup() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-masters-green py-5 text-center shadow-lg">
-        <h1 className="text-masters-gold text-2xl font-bold tracking-wide">New Match Setup</h1>
-        <div className="flex justify-center gap-2 mt-3">
-          {[1, 2, 3].map(s => (
-            <div key={s} className={`w-8 h-1 rounded-full ${step >= s ? 'bg-masters-gold' : 'bg-masters-darkgreen'}`} />
-          ))}
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-masters-green text-lg font-bold tracking-wide">New Match Setup</h1>
+          <div className="flex gap-2">
+            {[1, 2, 3].map(s => (
+              <div key={s} className={`w-6 h-1.5 rounded-full transition-colors ${step >= s ? 'bg-masters-green' : 'bg-gray-200'}`} />
+            ))}
+          </div>
         </div>
       </header>
 
@@ -443,9 +445,6 @@ export default function Setup() {
         )}
       </main>
 
-      <footer className="bg-masters-green text-center py-3">
-        <p className="text-masters-gold text-xs tracking-widest uppercase">ScrambleScorer</p>
-      </footer>
     </div>
   )
 }

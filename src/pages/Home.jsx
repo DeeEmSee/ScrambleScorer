@@ -34,21 +34,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-masters-green py-10 text-center shadow-lg">
-        <div className="text-6xl mb-3">⛳</div>
-        <h1 className="text-masters-gold text-4xl sm:text-5xl font-bold tracking-wide">
-          ScrambleScorer
-        </h1>
-        <p className="text-white text-sm mt-2 tracking-widest uppercase opacity-80">
-          Live Golf Match Scoring
-        </p>
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-md mx-auto px-4 py-5 text-center">
+          <div className="text-4xl mb-1">⛳</div>
+          <h1 className="text-masters-green text-3xl font-bold tracking-wide">ScrambleScorer</h1>
+          <p className="text-gray-400 text-xs mt-1 tracking-widest uppercase">Live Golf Match Scoring</p>
+        </div>
       </header>
 
-      <main className="flex-1 max-w-md mx-auto w-full px-4 py-10 flex flex-col gap-8">
+      <main className="flex-1 max-w-md mx-auto w-full px-4 py-8 flex flex-col gap-6">
         {/* Join a scramble */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-          <div className="bg-masters-green px-5 py-3">
-            <h2 className="text-masters-gold font-bold text-lg">Join a Match</h2>
+          <div className="px-5 pt-4 pb-2 border-b border-gray-100">
+            <h2 className="text-gray-800 font-bold text-base">Join a Match</h2>
           </div>
           <div className="p-5 flex flex-col gap-4">
             {loading ? (
@@ -59,7 +57,7 @@ export default function Home() {
               <select
                 value={selected}
                 onChange={(e) => setSelected(e.target.value)}
-                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:border-masters-green focus:outline-none bg-white"
+                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-800 focus:border-masters-green focus:outline-none bg-white"
               >
                 <option value="">Select a match...</option>
                 {scrambles.map(s => (
@@ -81,33 +79,29 @@ export default function Home() {
 
         {/* Divider */}
         <div className="flex items-center gap-4">
-          <div className="flex-1 border-t border-gray-300" />
-          <span className="text-gray-400 text-sm">or</span>
-          <div className="flex-1 border-t border-gray-300" />
+          <div className="flex-1 border-t border-gray-200" />
+          <span className="text-gray-300 text-sm">or</span>
+          <div className="flex-1 border-t border-gray-200" />
         </div>
 
         {/* Organizer */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-          <div className="bg-masters-gold px-5 py-3">
-            <h2 className="text-white font-bold text-lg">Organizer</h2>
+          <div className="px-5 pt-4 pb-2 border-b border-gray-100">
+            <h2 className="text-gray-800 font-bold text-base">Organizer</h2>
           </div>
           <div className="p-5">
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-gray-500 text-sm mb-4">
               Set up a new match, enter hole pars, and create teams.
             </p>
             <button
               onClick={() => navigate('/setup')}
-              className="w-full bg-masters-gold text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity"
+              className="w-full bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors"
             >
               Create New Match
             </button>
           </div>
         </div>
       </main>
-
-      <footer className="bg-masters-green text-center py-3">
-        <p className="text-masters-gold text-xs tracking-widest uppercase">ScrambleScorer</p>
-      </footer>
     </div>
   )
 }
