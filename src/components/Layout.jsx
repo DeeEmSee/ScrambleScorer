@@ -12,22 +12,22 @@ export default function Layout({ children, scrambleName }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className="bg-masters-green shadow-lg">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
-            <Link to="/" className="flex items-center gap-2 text-masters-green font-bold text-lg tracking-wide">
+            <Link to="/" className="flex items-center gap-2 text-masters-gold font-bold text-lg tracking-wide">
               <span>⛳</span>
               <span className="hidden sm:inline">ScrambleScorer</span>
             </Link>
             {scrambleName && (
-              <span className="text-gray-400 text-sm font-medium truncate max-w-[150px] sm:max-w-xs">
+              <span className="text-white/70 text-sm font-medium truncate max-w-[150px] sm:max-w-xs">
                 {scrambleName}
               </span>
             )}
           </div>
         </div>
         {id && (
-          <div className="max-w-4xl mx-auto px-4">
+          <div className="max-w-4xl mx-auto px-4 border-t border-masters-darkgreen">
             <nav className="flex">
               {tabs(id).map(({ to, label }) => {
                 const active = location.pathname === to
@@ -35,10 +35,10 @@ export default function Layout({ children, scrambleName }) {
                   <Link
                     key={to}
                     to={to}
-                    className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
+                    className={`flex-1 text-center py-3 text-sm font-semibold border-b-2 transition-colors ${
                       active
-                        ? 'border-masters-green text-masters-green'
-                        : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-masters-gold text-masters-gold'
+                        : 'border-transparent text-white/60 hover:text-white hover:border-white/30'
                     }`}
                   >
                     {label}
