@@ -10,6 +10,25 @@ function formatScore(rel) {
   return `+${rel}`
 }
 
+function PositionBadge({ pos, isTied }) {
+  const label = `${isTied ? 'T' : ''}${pos}`
+  if (pos === 2) {
+    return (
+      <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
+        <span className="text-gray-500 font-bold text-xs">{label}</span>
+      </div>
+    )
+  }
+  if (pos === 3) {
+    return (
+      <div className="w-6 h-6 rounded-full flex items-center justify-center mx-auto" style={{ background: '#fef3c7', border: '1px solid #fcd34d' }}>
+        <span className="font-bold text-xs" style={{ color: '#92400e' }}>{label}</span>
+      </div>
+    )
+  }
+  return <span className="text-gray-400 font-medium text-sm">{label}</span>
+}
+
 export default function Leaderboard() {
   const { id } = useParams()
   const [scramble, setScramble] = useState(null)
@@ -60,8 +79,8 @@ export default function Leaderboard() {
       const { data: s } = await supabase.from('scrambles').select('*').eq('id', id).single()
       setScramble(s)
       if (s) {
-        const standings = await buildStandings(id)
-        setStandings(standings)
+        const st = await buildStandings(id)
+        setStandings(st)
         setLastUpdated(new Date())
       }
     }
@@ -105,124 +124,188 @@ export default function Leaderboard() {
     setSending(false)
   }
 
-  const totalPar = scramble ? null : null
-
-  function getPosition(index, standings) {
+  function getPosition(index, standingsArr) {
     if (index === 0) return 1
-    const prev = standings[index - 1]
-    const curr = standings[index]
-    if (curr.scoreToPar === prev.scoreToPar) return getPosition(index - 1, standings)
+    const prev = standingsArr[index - 1]
+    const curr = standingsArr[index]
+    if (curr.scoreToPar === prev.scoreToPar) return getPosition(index - 1, standingsArr)
     return index + 1
   }
 
-  function thruLabel(team, scramble) {
-    if (!scramble) return ''
+  function thruLabel(team, sc) {
+    if (!sc) return ''
     if (team.holesPlayed === 0) return '—'
-    if (team.holesPlayed === scramble.num_holes) return 'F'
+    if (team.holesPlayed === sc.num_holes) return 'F'
     return `${team.holesPlayed}`
   }
 
   if (!scramble) return (
     <Layout>
       <div className="flex items-center justify-center h-40">
-        <p className="text-gray-400">Loading...</p>
+        <p className="text-gray-400">Loading…</p>
       </div>
     </Layout>
   )
 
+  const leader = standings.length > 0 && standings[0].holesPlayed > 0 ? standings[0] : null
+  const tableRows = leader ? standings.slice(1) : standings
+  const leadMargin = leader && standings.length > 1 && standings[1]?.holesPlayed > 0
+    ? Math.abs(leader.scoreToPar - standings[1].scoreToPar)
+    : null
+
   return (
     <Layout scrambleName={scramble.name}>
-      <div className="w-full px-0 sm:px-4 py-4 sm:max-w-2xl sm:mx-auto">
-        {/* Tournament Header — Masters Style */}
-        <div className="bg-masters-green mx-0 sm:rounded-t-lg overflow-hidden shadow-lg">
-          <div className="text-center py-5 px-4">
-            <p className="text-masters-gold text-xs tracking-widest uppercase mb-1">Official</p>
-            <h1 className="text-white text-2xl sm:text-3xl font-bold tracking-wide">{scramble.name}</h1>
-            <p className="text-masters-gold text-sm mt-1 tracking-widest uppercase">Leaderboard</p>
+      <div className="w-full sm:max-w-2xl sm:mx-auto">
+
+        {/* Tournament header */}
+        <div className="mg-gradient px-4 pt-5 pb-0 sm:rounded-t-xl overflow-hidden">
+          <div className="flex justify-center mb-2">
+            <span
+              className="border border-masters-gold/50 text-masters-gold text-xs px-3 py-0.5 rounded-full tracking-widest uppercase"
+              style={{ fontFamily: 'Georgia, serif', background: 'rgba(207,168,76,0.1)' }}
+            >
+              Official Scoring
+            </span>
           </div>
-          {/* Column headers */}
-          <div className="grid grid-cols-[56px_1fr_100px_72px] bg-masters-darkgreen px-4 py-3 text-sm text-masters-gold uppercase tracking-widest font-bold">
-            <div className="text-center">Pos</div>
-            <div>Team</div>
-            <div className="text-center">Score</div>
-            <div className="text-center">Thru</div>
+          <h1
+            className="text-white text-2xl sm:text-3xl font-bold text-center"
+            style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.02em' }}
+          >
+            {scramble.name}
+          </h1>
+          <p
+            className="text-masters-gold/80 text-center text-xs tracking-[0.2em] uppercase mt-0.5 mb-3"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            Leaderboard
+          </p>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="w-2 h-2 bg-green-400 rounded-full" style={{ animation: 'pulse-dot 1.5s ease-in-out infinite' }} />
+            <span className="text-white/50 text-xs">
+              Live{lastUpdated ? ` · Updated ${lastUpdated.toLocaleTimeString()}` : ''}
+            </span>
           </div>
         </div>
 
         {/* Standings */}
-        <div className="bg-white shadow-lg sm:rounded-b-lg overflow-hidden border border-gray-200 border-t-0">
-          {standings.length === 0 ? (
-            <div className="text-center py-16 text-gray-400">
-              <p className="text-5xl mb-3">🏌️</p>
-              <p className="text-lg font-medium">No scores yet</p>
-              <p className="text-sm mt-1">Scores will appear here as teams play.</p>
-            </div>
-          ) : (
-            standings.map((team, i) => {
-              const pos = getPosition(i, standings)
-              const isTied = team.scoreToPar !== null && standings.filter(t => t.scoreToPar === team.scoreToPar).length > 1
-              const isLeader = pos === 1 && team.holesPlayed > 0
-              const thru = thruLabel(team, scramble)
-              const isFinished = thru === 'F'
-
-              return (
-                <div
-                  key={team.id}
-                  className={`grid grid-cols-[56px_1fr_100px_72px] items-center px-4 py-6 border-b border-gray-100 last:border-b-0 ${isLeader ? 'bg-yellow-50' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
-                >
-                  {/* Position */}
-                  <div className="text-center">
-                    {team.holesPlayed > 0 ? (
-                      <span className={`font-bold text-xl ${isLeader ? 'text-masters-gold' : 'text-gray-500'}`}>
-                        {isTied ? 'T' : ''}{pos}
-                      </span>
-                    ) : (
-                      <span className="text-gray-300 text-xl">—</span>
-                    )}
+        {standings.length === 0 ? (
+          <div className="mx-3 mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-16">
+            <p className="text-5xl mb-3">🏌️</p>
+            <p className="text-lg font-medium text-gray-600">No scores yet</p>
+            <p className="text-sm text-gray-400 mt-1">Scores will appear here as teams play.</p>
+          </div>
+        ) : (
+          <>
+            {/* Hero card for leader */}
+            {leader && (
+              <div className="mx-3 mt-3 mb-2 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                <div style={{ background: '#006747', height: 3 }} />
+                <div className="flex items-center px-4 py-4 gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-masters-gold/30"
+                    style={{ background: 'rgba(207,168,76,0.1)' }}
+                  >
+                    <span className="text-masters-gold font-black" style={{ fontFamily: 'Georgia, serif' }}>1</span>
                   </div>
-
-                  {/* Team name */}
-                  <div className={`text-lg font-medium ${isLeader ? 'text-masters-green font-bold' : 'text-gray-800'}`}>
-                    {team.name}
-                    {isFinished && <span className="ml-2 text-sm text-gray-400">✓</span>}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-gray-900 font-bold text-base truncate">{leader.name}</div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      {leadMargin !== null ? (
+                        <>
+                          <span className="text-xs text-gray-400">Leading by</span>
+                          <span className="text-xs text-masters-green font-semibold">{leadMargin}</span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-gray-400">
+                          {thruLabel(leader, scramble) === 'F' ? 'Finished' : `${leader.holesPlayed} holes played`}
+                        </span>
+                      )}
+                    </div>
                   </div>
-
-                  {/* Score to par */}
-                  <div className="text-center">
-                    {team.holesPlayed > 0 ? (
-                      <span className={`font-bold text-2xl ${
-                        team.scoreToPar < 0 ? 'text-red-600' : team.scoreToPar > 0 ? 'text-blue-800' : 'text-gray-700'
-                      }`}>
-                        {formatScore(team.scoreToPar)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-300 text-2xl">—</span>
-                    )}
-                  </div>
-
-                  {/* Thru */}
-                  <div className="text-center">
-                    <span className={`text-lg font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-500'}`}>
-                      {thru}
-                    </span>
+                  <div className="text-right flex-shrink-0">
+                    <div className={`font-black text-4xl leading-none ${
+                      leader.scoreToPar < 0 ? 'text-red-600'
+                      : leader.scoreToPar > 0 ? 'text-blue-800'
+                      : 'text-gray-700'
+                    }`}>
+                      {formatScore(leader.scoreToPar)}
+                    </div>
+                    <div className="text-gray-400 text-xs mt-0.5">thru {thruLabel(leader, scramble)}</div>
                   </div>
                 </div>
-              )
-            })
-          )}
-        </div>
+              </div>
+            )}
 
-        {lastUpdated && (
-          <p className="text-center text-xs text-gray-400 mt-3">
-            Live · Updated {lastUpdated.toLocaleTimeString()}
-          </p>
+            {/* Table card for remaining teams */}
+            {tableRows.length > 0 && (
+              <div className="mx-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                <div className="grid grid-cols-[44px_1fr_72px_52px] px-4 py-2 border-b border-gray-50">
+                  <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Pos</div>
+                  <div className="text-gray-300 text-xs font-bold uppercase tracking-wide">Team</div>
+                  <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Score</div>
+                  <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Thru</div>
+                </div>
+                {tableRows.map((team, i) => {
+                  const actualIndex = leader ? i + 1 : i
+                  const pos = getPosition(actualIndex, standings)
+                  const isTied = team.scoreToPar !== null && standings.filter(t => t.scoreToPar === team.scoreToPar).length > 1
+                  const thru = thruLabel(team, scramble)
+                  const isFinished = thru === 'F'
+
+                  return (
+                    <div
+                      key={team.id}
+                      className={`grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50 last:border-b-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                    >
+                      <div className="text-center">
+                        {team.holesPlayed > 0
+                          ? <PositionBadge pos={pos} isTied={isTied} />
+                          : <span className="text-gray-300 text-sm">—</span>
+                        }
+                      </div>
+                      <div className={`font-medium text-sm truncate ${team.holesPlayed > 0 ? 'text-gray-800' : 'text-gray-400'}`}>
+                        {team.name}
+                      </div>
+                      <div className="text-center">
+                        {team.holesPlayed > 0 ? (
+                          <span className={`font-bold text-xl ${
+                            team.scoreToPar < 0 ? 'text-red-600'
+                            : team.scoreToPar > 0 ? 'text-blue-800'
+                            : 'text-gray-600'
+                          }`}>
+                            {formatScore(team.scoreToPar)}
+                          </span>
+                        ) : (
+                          <span className="text-gray-300 text-xl">—</span>
+                        )}
+                      </div>
+                      <div className="text-center">
+                        <span className={`text-sm font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-400'}`}>
+                          {thru}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
         )}
 
         {/* Match Chat */}
-        <div className="bg-white shadow-lg sm:rounded-lg overflow-hidden border border-gray-200 mt-4">
-          <div className="bg-masters-green px-4 py-3">
-            <h2 className="text-masters-gold font-bold text-sm uppercase tracking-widest">Match Chat</h2>
+        <div className="mx-3 mb-6 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+          <div className="px-4 py-3 flex items-center gap-2" style={{ background: '#006747' }}>
+            <svg className="w-3.5 h-3.5 text-masters-gold" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H9l-4 4v-4H4a2 2 0 01-2-2V5z" />
+            </svg>
+            <span
+              className="text-masters-gold font-bold text-xs uppercase tracking-widest"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Match Chat
+            </span>
           </div>
+
           <div className="h-64 overflow-y-auto px-4 py-3 flex flex-col gap-3">
             {messages.length === 0 && (
               <p className="text-gray-400 text-sm text-center mt-8">No messages yet.</p>
@@ -231,7 +314,7 @@ export default function Leaderboard() {
               if (msg.type === 'score') {
                 return (
                   <div key={msg.id} className="text-center py-0.5">
-                    <span className="text-xs text-gray-400 italic">
+                    <span className="text-xs text-gray-400 italic bg-gray-50 px-2 py-0.5 rounded-full">
                       <span className="font-semibold text-gray-500">{msg.team_name}</span> {msg.text}
                     </span>
                   </div>
@@ -240,8 +323,14 @@ export default function Leaderboard() {
               const isMe = msg.team_id === myTeam?.id
               return (
                 <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                  {!isMe && <span className="text-xs font-bold text-masters-green mb-0.5">{msg.team_name}</span>}
-                  <div className={`rounded-lg px-3 py-2 max-w-xs text-sm break-words ${isMe ? 'bg-masters-green text-white' : 'bg-gray-100 text-gray-800'}`}>
+                  {!isMe && (
+                    <span className="text-xs font-bold text-masters-green mb-0.5">{msg.team_name}</span>
+                  )}
+                  <div className={`rounded-2xl px-3 py-2 max-w-xs text-sm break-words ${
+                    isMe
+                      ? 'rounded-tr-md text-white'
+                      : 'bg-gray-100 text-gray-800 rounded-tl-md'
+                  }`} style={isMe ? { background: '#006747' } : {}}>
                     {msg.text}
                   </div>
                   <span className="text-xs text-gray-400 mt-0.5">
@@ -252,7 +341,8 @@ export default function Leaderboard() {
             })}
             <div ref={messagesEndRef} />
           </div>
-          <div className="border-t border-gray-200 p-3 flex gap-2">
+
+          <div className="border-t border-gray-100 p-3 flex gap-2">
             {myTeam ? (
               <>
                 <input
@@ -262,23 +352,30 @@ export default function Leaderboard() {
                   onKeyDown={e => e.key === 'Enter' && sendMessage()}
                   placeholder={`Message as ${myTeam.name}…`}
                   maxLength={200}
-                  className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-masters-green focus:outline-none"
+                  className="flex-1 bg-gray-100 rounded-2xl px-4 py-2 text-sm text-gray-700 focus:outline-none border border-transparent focus:border-masters-green/20"
                 />
                 <button
                   onClick={sendMessage}
                   disabled={!chatInput.trim() || sending}
-                  className="bg-masters-green text-white font-bold px-4 py-2 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50"
+                  className="w-10 h-10 rounded-full text-white flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-40"
+                  style={{ background: '#006747' }}
                 >
-                  Send
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />
+                  </svg>
                 </button>
               </>
             ) : (
               <p className="text-gray-400 text-sm py-1 text-center w-full">
-                <Link to={`/scramble/${id}/score`} className="text-masters-green underline">Select your team</Link> in Score Entry to chat
+                <Link to={`/scramble/${id}/score`} className="text-masters-green underline">
+                  Select your team
+                </Link>{' '}
+                in Score Entry to chat
               </p>
             )}
           </div>
         </div>
+
       </div>
     </Layout>
   )

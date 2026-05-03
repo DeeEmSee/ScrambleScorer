@@ -15,7 +15,16 @@
 }
 
 body {
-  font-family: Georgia, 'Times New Roman', serif;
-  background-color: #FAF7F0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f2f2f2;
   min-height: 100vh;
+}
+
+.mg-gradient {
+  background: linear-gradient(160deg, #005a3c 0%, #006747 45%, #007a52 100%);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }

@@ -84,8 +84,13 @@ export default function AllScores() {
 
   return (
     <Layout scrambleName={scramble.name}>
-      <div className="py-6 px-2">
-        <h2 className="text-masters-green text-xl font-bold mb-4 px-2">{scramble.name} — All Scorecards</h2>
+      <div className="py-4 px-2">
+        <h2
+          className="text-gray-700 font-bold text-base mb-3 px-2"
+          style={{ fontFamily: 'Georgia, serif' }}
+        >
+          All Scorecards
+        </h2>
 
         {teams.map(team => {
           const teamScores = scoreMap[team.id] || {}
@@ -93,9 +98,9 @@ export default function AllScores() {
           const { strokes: totalStrokes, par: playedPar, rel } = teamTotalPar(team.id)
 
           return (
-            <div key={team.id} className="bg-white rounded-lg shadow-md border border-gray-200 mb-5 overflow-hidden">
+            <div key={team.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
               {/* Team header */}
-              <div className="bg-masters-green px-4 py-3 flex items-center justify-between">
+              <div className="mg-gradient px-4 py-3 flex items-center justify-between">
                 <h3 className="text-white font-bold text-base">
                   {team.name}
                   {holesPlayed > 0 && (

@@ -12,22 +12,26 @@ export default function Layout({ children, scrambleName }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-masters-green shadow-lg">
+      <header className="mg-gradient shadow-lg">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
-            <Link to="/" className="flex items-center gap-2 text-masters-gold font-bold text-lg tracking-wide">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-masters-gold font-bold text-lg tracking-wide"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
               <span>⛳</span>
               <span className="hidden sm:inline">ScrambleScorer</span>
             </Link>
             {scrambleName && (
-              <span className="text-white/70 text-sm font-medium truncate max-w-[150px] sm:max-w-xs">
+              <span className="text-white/60 text-sm font-medium truncate max-w-[150px] sm:max-w-xs">
                 {scrambleName}
               </span>
             )}
           </div>
         </div>
         {id && (
-          <div className="max-w-4xl mx-auto px-4 border-t border-masters-darkgreen">
+          <div className="max-w-4xl mx-auto px-4 border-t border-white/10">
             <nav className="flex">
               {tabs(id).map(({ to, label }) => {
                 const active = location.pathname === to
@@ -38,7 +42,7 @@ export default function Layout({ children, scrambleName }) {
                     className={`flex-1 text-center py-3 text-sm font-semibold border-b-2 transition-colors ${
                       active
                         ? 'border-masters-gold text-masters-gold'
-                        : 'border-transparent text-white/60 hover:text-white hover:border-white/30'
+                        : 'border-transparent text-white/50 hover:text-white hover:border-white/30'
                     }`}
                   >
                     {label}

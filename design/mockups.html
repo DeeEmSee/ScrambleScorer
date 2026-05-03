@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScrambleScorer — UI Mockups</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'mg': '#006747',
+            'mgd': '#004d35',
+            'gold': '#CFA84C',
+            'cream': '#FAF7F0',
+          },
+          fontFamily: {
+            serif: ['Georgia', 'Times New Roman', 'serif'],
+            sans: ['system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #1a1a2e; font-family: Georgia, serif; }
+    .tab-btn { transition: all 0.2s; }
+    .tab-btn.active { background: #CFA84C; color: #1a1a2e; }
+    .screen-btn.active { background: #006747; color: white; }
+    .phone-frame {
+      width: 375px;
+      min-height: 700px;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 2px #333, inset 0 0 0 1px #555;
+      position: relative;
+    }
+    /* Design A gradients */
+    .grade-a-header { background: linear-gradient(160deg, #005a3c 0%, #006747 40%, #007a52 100%); }
+    /* Design B gradients */
+    .grad-b-header { background: linear-gradient(160deg, #0a0a0a 0%, #111827 60%, #1c2333 100%); }
+    .grad-b-row-odd { background: #0f1621; }
+    .grad-b-row-even { background: #111927; }
+    /* Design C */
+    .grad-c-header { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
+    /* Score badges */
+    .badge-eagle { background: #FFD700; color: #1a1a1a; }
+    .badge-birdie { background: #CC0000; color: white; }
+    .badge-par { background: #2d3748; color: white; }
+    .badge-bogey { background: #1e3a5f; color: white; }
+    .badge-double { background: #374151; color: #9ca3af; }
+    /* Pulsing live dot */
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .live-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+    /* Scrollable screens */
+    .screen-content { max-height: 720px; overflow-y: auto; scrollbar-width: none; }
+    .screen-content::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+
+  <!-- Header -->
+  <div class="max-w-6xl mx-auto mb-8">
+    <h1 class="text-white text-3xl font-bold tracking-tight mb-1">ScrambleScorer <span class="text-gold">UI Directions</span></h1>
+    <p class="text-gray-400 text-sm">3 design directions × 3 screens each — no build, no deploy. Click tabs to explore.</p>
+  </div>
+
+  <!-- Design Direction Tabs -->
+  <div class="max-w-6xl mx-auto mb-6 flex gap-2 flex-wrap">
+    <button onclick="setDesign('d')" class="tab-btn active px-5 py-2 rounded-full text-sm font-bold border border-gold/30 text-gray-300" id="tab-d">★ D — Augusta Modern</button>
+    <button onclick="setDesign('a')" class="tab-btn px-5 py-2 rounded-full text-sm font-bold border border-gold/30 text-gray-300" id="tab-a">A — Augusta Elevated</button>
+    <button onclick="setDesign('b')" class="tab-btn px-5 py-2 rounded-full text-sm font-bold border border-gold/30 text-gray-300" id="tab-b">B — Dark Scoreboard</button>
+    <button onclick="setDesign('c')" class="tab-btn px-5 py-2 rounded-full text-sm font-bold border border-gold/30 text-gray-300" id="tab-c">C — Clean & Modern</button>
+    <span class="mx-2 border-l border-gray-600"></span>
+    <button onclick="setScreen('leaderboard')" class="screen-btn active px-4 py-2 rounded-full text-sm font-bold border border-white/10 text-gray-300" id="scr-leaderboard">Leaderboard</button>
+    <button onclick="setScreen('score')" class="screen-btn px-4 py-2 rounded-full text-sm font-bold border border-white/10 text-gray-300" id="scr-score">Score Entry</button>
+    <button onclick="setScreen('home')" class="screen-btn px-4 py-2 rounded-full text-sm font-bold border border-white/10 text-gray-300" id="scr-home">Home</button>
+  </div>
+
+  <!-- Description bar -->
+  <div class="max-w-6xl mx-auto mb-8">
+    <div id="desc-d" class="design-desc bg-white/5 rounded-xl px-5 py-3 border border-gold/20 text-gray-300 text-sm">
+      <span class="text-gold font-bold">D — Augusta Modern:</span> Masters palette (greens + gold) combined with C's clean white-card layout. Green gradient header, white cards on light gray, Georgia serif for branding, sans-serif for data. Hero leader card, grouped hole cards for score entry, modern rounded inputs.
+    </div>
+    <div id="desc-a" class="design-desc hidden bg-white/5 rounded-xl px-5 py-3 border border-gold/20 text-gray-300 text-sm">
+      <span class="text-gold font-bold">A — Augusta Elevated:</span> Keeps the Masters palette but adds depth — gradient header, richer gold accents, trophy podium for top 3, stronger score typography, subtle texture. Evolutionary, familiar feel.
+    </div>
+    <div id="desc-b" class="design-desc hidden bg-white/5 rounded-xl px-5 py-3 border border-gold/20 text-gray-300 text-sm">
+      <span class="text-gold font-bold">B — Dark Scoreboard:</span> Full dark mode inspired by PGA Tour Live and ESPN leaderboards. High contrast gold on near-black, glowing score highlights, broadcast-style layout. Bold departure from current design.
+    </div>
+    <div id="desc-c" class="design-desc hidden bg-white/5 rounded-xl px-5 py-3 border border-gold/20 text-gray-300 text-sm">
+      <span class="text-gold font-bold">C — Clean &amp; Modern:</span> White-dominant, editorial feel with big bold score numbers as the hero. Subtle gray cards, no heavy color blocks. Score colors are still present but text-only. Upscale country club aesthetic.
+    </div>
+  </div>
+
+  <!-- Phone Frames Row -->
+  <div class="max-w-6xl mx-auto flex justify-center gap-8 flex-wrap">
+
+    <!-- ═══════════════════════════════ DESIGN A ═══════════════════════════════ -->
+    <div id="design-a" class="design-block flex flex-col items-center gap-4">
+      <div class="text-gold text-xs font-bold uppercase tracking-widest">Direction A</div>
+      <div class="phone-frame bg-cream">
+
+        <!-- A: LEADERBOARD -->
+        <div id="a-leaderboard" class="screen screen-content" style="font-family: Georgia, serif;">
+          <!-- Status bar -->
+          <div class="grade-a-header px-5 pt-8 pb-0">
+            <div class="flex justify-between text-white/60 text-xs mb-3">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <!-- Tournament badge -->
+            <div class="flex justify-center mb-2">
+              <span class="bg-gold/20 text-gold text-xs px-3 py-0.5 rounded-full tracking-widest uppercase border border-gold/30">Official Scoring</span>
+            </div>
+            <h1 class="text-white text-2xl font-bold text-center tracking-wide">Dads Golf Trip 2025</h1>
+            <p class="text-gold/80 text-center text-xs tracking-[0.2em] uppercase mt-0.5 mb-4">Leaderboard</p>
+            <!-- Live indicator -->
+            <div class="flex items-center justify-center gap-2 mb-4">
+              <span class="live-dot w-2 h-2 bg-green-400 rounded-full"></span>
+              <span class="text-white/60 text-xs">Live · Updated 2:34 PM</span>
+            </div>
+          </div>
+
+          <!-- Column headers -->
+          <div class="bg-mgd grid grid-cols-[52px_1fr_88px_60px] px-4 py-2.5 text-gold text-xs font-bold uppercase tracking-widest">
+            <div class="text-center">Pos</div>
+            <div>Team</div>
+            <div class="text-center">Score</div>
+            <div class="text-center">Thru</div>
+          </div>
+
+          <!-- Top 3 Podium Rows -->
+          <div class="bg-amber-50 grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-4 border-b-2 border-gold/30">
+            <div class="text-center">
+              <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <span class="text-white font-black text-sm">1</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-mg font-black text-base">Team Eagle</div>
+              <div class="text-gray-400 text-xs mt-0.5">Leading by 2</div>
+            </div>
+            <div class="text-center">
+              <span class="text-red-600 font-black text-3xl">-7</span>
+            </div>
+            <div class="text-center">
+              <span class="text-mg font-bold text-sm">F</span>
+            </div>
+          </div>
+
+          <div class="bg-white grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-3.5 border-b border-gray-100">
+            <div class="text-center">
+              <div class="w-7 h-7 bg-gray-300 rounded-full flex items-center justify-center mx-auto">
+                <span class="text-gray-600 font-bold text-sm">2</span>
+              </div>
+            </div>
+            <div class="text-gray-800 font-semibold text-base">The Back Nine</div>
+            <div class="text-center"><span class="text-red-600 font-bold text-2xl">-5</span></div>
+            <div class="text-center"><span class="text-gray-500 text-sm font-medium">16</span></div>
+          </div>
+
+          <div class="bg-gray-50 grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-3.5 border-b border-gray-100">
+            <div class="text-center">
+              <div class="w-7 h-7 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+                <span class="text-amber-700 font-bold text-sm">3</span>
+              </div>
+            </div>
+            <div class="text-gray-800 font-semibold text-base">Mulligan Masters</div>
+            <div class="text-center"><span class="text-red-600 font-bold text-2xl">-4</span></div>
+            <div class="text-center"><span class="text-gray-500 text-sm font-medium">14</span></div>
+          </div>
+
+          <div class="bg-white grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-3.5 border-b border-gray-100">
+            <div class="text-center"><span class="text-gray-400 font-bold text-lg">T4</span></div>
+            <div class="text-gray-700 font-medium text-base">Iron Johns</div>
+            <div class="text-center"><span class="text-red-600 font-bold text-2xl">-2</span></div>
+            <div class="text-center"><span class="text-gray-500 text-sm font-medium">13</span></div>
+          </div>
+
+          <div class="bg-gray-50 grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-3.5 border-b border-gray-100">
+            <div class="text-center"><span class="text-gray-400 font-bold text-lg">T4</span></div>
+            <div class="text-gray-700 font-medium text-base">Slice of Life</div>
+            <div class="text-center"><span class="text-red-600 font-bold text-2xl">-2</span></div>
+            <div class="text-center"><span class="text-gray-500 text-sm font-medium">11</span></div>
+          </div>
+
+          <div class="bg-white grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-3.5 border-b border-gray-100">
+            <div class="text-center"><span class="text-gray-400 font-bold text-lg">6</span></div>
+            <div class="text-gray-700 font-medium text-base">Bogey Boys</div>
+            <div class="text-center"><span class="text-gray-600 font-bold text-2xl">E</span></div>
+            <div class="text-center"><span class="text-gray-500 text-sm font-medium">9</span></div>
+          </div>
+
+          <!-- Chat section -->
+          <div class="mt-0">
+            <div class="grade-a-header px-4 py-2.5 flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H9l-4 4v-4H4a2 2 0 01-2-2V5z"/></svg>
+              <span class="text-gold font-bold text-xs uppercase tracking-widest">Match Chat</span>
+            </div>
+            <div class="bg-white px-4 py-3 flex flex-col gap-2 min-h-24">
+              <div class="text-center"><span class="text-xs text-gray-400 italic"><b class="text-gray-500">Team Eagle</b> made birdie on hole 14 🐦</span></div>
+              <div class="flex flex-col items-start">
+                <span class="text-xs font-bold text-mg mb-0.5">The Back Nine</span>
+                <div class="bg-gray-100 rounded-xl rounded-tl-sm px-3 py-1.5 text-sm text-gray-800 max-w-xs">Nice shot on 12!</div>
+              </div>
+              <div class="flex flex-col items-end">
+                <div class="bg-mg rounded-xl rounded-tr-sm px-3 py-1.5 text-sm text-white max-w-xs">Thanks! That putt was lucky 😅</div>
+              </div>
+            </div>
+            <div class="border-t border-gray-200 p-3 flex gap-2">
+              <input class="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-mg focus:outline-none" placeholder="Message as Team Eagle…" />
+              <button class="bg-mg text-white font-bold px-4 py-2 rounded-xl text-sm">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- A: SCORE ENTRY -->
+        <div id="a-score" class="screen screen-content hidden" style="font-family: Georgia, serif;">
+          <div class="grade-a-header px-5 pt-8 pb-4">
+            <div class="flex justify-between text-white/60 text-xs mb-4">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center border border-gold/30">
+                <span class="text-gold font-black text-lg">E</span>
+              </div>
+              <div>
+                <div class="text-white font-bold text-lg">Team Eagle</div>
+                <div class="text-white/60 text-xs">Dads Golf Trip 2025</div>
+              </div>
+              <div class="ml-auto text-right">
+                <div class="text-red-400 font-black text-2xl">-7</div>
+                <div class="text-white/50 text-xs">thru F</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Front 9 label -->
+          <div class="bg-mgd px-4 py-2 flex justify-between items-center">
+            <span class="text-gold text-xs font-bold uppercase tracking-widest">Front 9</span>
+            <span class="text-white/60 text-xs">Out: 35 (par 36)</span>
+          </div>
+
+          <!-- Score rows -->
+          <div class="bg-white divide-y divide-gray-100">
+            <!-- Hole row format: number | par | score badge | +/- -->
+            <div class="flex items-center px-4 py-3 gap-3">
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Hole</div>
+                <div class="text-gray-800 font-bold text-lg">1</div>
+              </div>
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Par</div>
+                <div class="text-gray-600 font-medium text-base">4</div>
+              </div>
+              <div class="flex-1 flex justify-center">
+                <div class="badge-birdie w-11 h-11 rounded-full flex items-center justify-center font-black text-xl shadow-md">3</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center active:bg-gray-200">−</button>
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center active:bg-gray-200">+</button>
+              </div>
+            </div>
+            <div class="flex items-center px-4 py-3 gap-3">
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Hole</div>
+                <div class="text-gray-800 font-bold text-lg">2</div>
+              </div>
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Par</div>
+                <div class="text-gray-600 font-medium text-base">3</div>
+              </div>
+              <div class="flex-1 flex justify-center">
+                <div class="badge-eagle w-11 h-11 rounded-full border-4 border-yellow-400 flex items-center justify-center font-black text-xl shadow-md">1</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center">−</button>
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center">+</button>
+              </div>
+            </div>
+            <div class="flex items-center px-4 py-3 gap-3">
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Hole</div>
+                <div class="text-gray-800 font-bold text-lg">3</div>
+              </div>
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Par</div>
+                <div class="text-gray-600 font-medium text-base">5</div>
+              </div>
+              <div class="flex-1 flex justify-center">
+                <div class="badge-par w-11 h-11 rounded-lg flex items-center justify-center font-black text-xl shadow-sm">5</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center">−</button>
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center">+</button>
+              </div>
+            </div>
+            <div class="flex items-center px-4 py-3 gap-3 opacity-50">
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Hole</div>
+                <div class="text-gray-800 font-bold text-lg">4</div>
+              </div>
+              <div class="w-9 text-center">
+                <div class="text-gray-400 text-xs">Par</div>
+                <div class="text-gray-600 font-medium text-base">4</div>
+              </div>
+              <div class="flex-1 flex justify-center">
+                <div class="w-11 h-11 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-300 font-bold text-xl">—</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-400 font-bold text-xl flex items-center justify-center" disabled>−</button>
+                <button class="w-9 h-9 bg-mg/10 rounded-lg text-mg font-bold text-xl flex items-center justify-center">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-mgd px-4 py-2 flex justify-between items-center">
+            <span class="text-gold text-xs font-bold uppercase tracking-widest">Back 9</span>
+            <span class="text-white/60 text-xs">In: 28 (par 36)</span>
+          </div>
+
+          <div class="bg-white divide-y divide-gray-100 pb-6">
+            <div class="flex items-center px-4 py-3 gap-3">
+              <div class="w-9 text-center"><div class="text-gray-400 text-xs">Hole</div><div class="text-gray-800 font-bold text-lg">10</div></div>
+              <div class="w-9 text-center"><div class="text-gray-400 text-xs">Par</div><div class="text-gray-600 font-medium text-base">4</div></div>
+              <div class="flex-1 flex justify-center">
+                <div class="badge-bogey w-11 h-11 rounded-lg border-2 border-blue-700 flex items-center justify-center font-black text-xl shadow-sm">5</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center">−</button>
+                <button class="w-9 h-9 bg-gray-100 rounded-lg text-gray-600 font-bold text-xl flex items-center justify-center">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- A: HOME -->
+        <div id="a-home" class="screen screen-content hidden" style="font-family: Georgia, serif; background: #FAF7F0;">
+          <div class="grade-a-header px-5 pt-8 pb-8">
+            <div class="flex justify-between text-white/60 text-xs mb-6">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="text-center">
+              <div class="text-5xl mb-3">⛳</div>
+              <h1 class="text-white text-3xl font-black tracking-tight">ScrambleScorer</h1>
+              <p class="text-gold/90 text-sm mt-1 tracking-widest uppercase">Live Scramble Scoring</p>
+            </div>
+          </div>
+
+          <div class="px-5 py-6 flex flex-col gap-4">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+              <h2 class="text-mg font-bold text-base mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87V15.13a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                Join a Match
+              </h2>
+              <select class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-700 font-medium text-sm focus:border-mg focus:outline-none bg-gray-50 appearance-none">
+                <option>Select a match…</option>
+                <option>Dads Golf Trip 2025</option>
+                <option>Saturday Scramble</option>
+              </select>
+              <button class="mt-3 w-full bg-mg text-white font-bold py-3 rounded-xl text-sm tracking-wide hover:bg-mgd transition-colors">Join Match →</button>
+            </div>
+
+            <div class="text-center text-gray-400 text-sm">— or —</div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+              <h2 class="text-gray-700 font-bold text-base mb-2">Create New Match</h2>
+              <p class="text-gray-400 text-sm mb-4">Set up a new scramble with your group</p>
+              <button class="w-full bg-gold text-mgd font-bold py-3 rounded-xl text-sm tracking-wide hover:brightness-95 transition-all">+ New Match</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end phone-frame A -->
+    </div>
+
+    <!-- ═══════════════════════════════ DESIGN B ═══════════════════════════════ -->
+    <div id="design-b" class="design-block hidden flex-col items-center gap-4">
+      <div class="text-gold text-xs font-bold uppercase tracking-widest">Direction B</div>
+      <div class="phone-frame" style="background: #090d14;">
+
+        <!-- B: LEADERBOARD -->
+        <div id="b-leaderboard" class="screen screen-content" style="font-family: system-ui, sans-serif; background: #090d14;">
+          <div class="grad-b-header px-5 pt-8 pb-5 border-b border-white/10">
+            <div class="flex justify-between text-white/40 text-xs mb-5">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white/50 text-xs uppercase tracking-widest mb-0.5">Scramble</p>
+                <h1 class="text-white text-xl font-black tracking-tight">Dads Golf Trip '25</h1>
+              </div>
+              <div class="text-right">
+                <div class="flex items-center gap-1.5 justify-end mb-0.5">
+                  <span class="live-dot w-2 h-2 bg-green-400 rounded-full"></span>
+                  <span class="text-green-400 text-xs font-bold uppercase tracking-wide">Live</span>
+                </div>
+                <span class="text-white/40 text-xs">2:34 PM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leaderboard header -->
+          <div class="grid grid-cols-[48px_1fr_80px_56px] px-4 py-2 border-b border-white/5">
+            <div class="text-white/30 text-xs font-bold uppercase text-center">Pos</div>
+            <div class="text-white/30 text-xs font-bold uppercase">Team</div>
+            <div class="text-white/30 text-xs font-bold uppercase text-center">Score</div>
+            <div class="text-white/30 text-xs font-bold uppercase text-center">Thru</div>
+          </div>
+
+          <!-- Leader row — highlighted -->
+          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-4 border-b border-gold/20 relative overflow-hidden" style="background: linear-gradient(90deg, rgba(207,168,76,0.12) 0%, transparent 100%);">
+            <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gold"></div>
+            <div class="text-center">
+              <span class="text-gold font-black text-xl">1</span>
+            </div>
+            <div>
+              <div class="text-white font-bold text-base">Team Eagle</div>
+              <div class="text-gold/60 text-xs mt-0.5">↑ Leading</div>
+            </div>
+            <div class="text-center">
+              <span class="text-gold font-black text-3xl" style="text-shadow: 0 0 20px rgba(207,168,76,0.5);">-7</span>
+            </div>
+            <div class="text-center">
+              <span class="text-white/60 text-sm font-bold" style="background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 6px;">F</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-3.5 border-b border-white/5" style="background: #0f1621;">
+            <div class="text-center"><span class="text-white/50 font-bold text-lg">2</span></div>
+            <div class="text-white/90 font-medium text-base">The Back Nine</div>
+            <div class="text-center"><span class="text-red-400 font-bold text-2xl">-5</span></div>
+            <div class="text-center"><span class="text-white/40 text-sm">16</span></div>
+          </div>
+
+          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-3.5 border-b border-white/5" style="background: #111927;">
+            <div class="text-center"><span class="text-white/50 font-bold text-lg">3</span></div>
+            <div class="text-white/90 font-medium text-base">Mulligan Masters</div>
+            <div class="text-center"><span class="text-red-400 font-bold text-2xl">-4</span></div>
+            <div class="text-center"><span class="text-white/40 text-sm">14</span></div>
+          </div>
+
+          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-3.5 border-b border-white/5" style="background: #0f1621;">
+            <div class="text-center"><span class="text-white/30 font-bold text-lg">T4</span></div>
+            <div class="text-white/70 font-medium text-base">Iron Johns</div>
+            <div class="text-center"><span class="text-red-400 font-bold text-2xl">-2</span></div>
+            <div class="text-center"><span class="text-white/40 text-sm">13</span></div>
+          </div>
+
+          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-3.5 border-b border-white/5" style="background: #111927;">
+            <div class="text-center"><span class="text-white/30 font-bold text-lg">T4</span></div>
+            <div class="text-white/70 font-medium text-base">Slice of Life</div>
+            <div class="text-center"><span class="text-red-400 font-bold text-2xl">-2</span></div>
+            <div class="text-center"><span class="text-white/40 text-sm">11</span></div>
+          </div>
+
+          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-3.5 border-b border-white/5" style="background: #0f1621;">
+            <div class="text-center"><span class="text-white/30 font-bold text-lg">6</span></div>
+            <div class="text-white/60 font-medium text-base">Bogey Boys</div>
+            <div class="text-center"><span class="text-white/60 font-bold text-2xl">E</span></div>
+            <div class="text-center"><span class="text-white/40 text-sm">9</span></div>
+          </div>
+
+          <!-- Chat -->
+          <div class="mt-2 border-t border-white/10">
+            <div class="flex items-center gap-2 px-4 py-2.5" style="background: #111927;">
+              <svg class="w-3.5 h-3.5 text-gold/70" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H9l-4 4v-4H4a2 2 0 01-2-2V5z"/></svg>
+              <span class="text-gold/70 font-bold text-xs uppercase tracking-widest">Match Chat</span>
+            </div>
+            <div class="px-4 py-3 flex flex-col gap-2.5" style="background: #090d14; min-height: 80px;">
+              <div class="text-center"><span class="text-xs text-white/25 italic"><b class="text-white/40">Team Eagle</b> made birdie on hole 14 🐦</span></div>
+              <div class="flex flex-col items-start">
+                <span class="text-xs font-bold text-gold/70 mb-0.5">The Back Nine</span>
+                <div class="rounded-xl rounded-tl-sm px-3 py-1.5 text-sm text-white/80 max-w-xs" style="background: #1c2333;">Nice shot on 12!</div>
+              </div>
+            </div>
+            <div class="border-t border-white/10 p-3 flex gap-2">
+              <input class="flex-1 rounded-xl px-3 py-2 text-sm text-white/80 focus:outline-none placeholder-white/20 border border-white/10 focus:border-gold/40" style="background: #1c2333;" placeholder="Message as Team Eagle…" />
+              <button class="font-bold px-4 py-2 rounded-xl text-sm text-mgd" style="background: #CFA84C;">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- B: SCORE ENTRY -->
+        <div id="b-score" class="screen screen-content hidden" style="font-family: system-ui, sans-serif; background: #090d14;">
+          <div class="px-5 pt-8 pb-5 border-b border-white/10" style="background: #111927;">
+            <div class="flex justify-between text-white/40 text-xs mb-4">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-full flex items-center justify-center border border-gold/40 font-black text-gold text-xl" style="background: rgba(207,168,76,0.1);">E</div>
+              <div>
+                <div class="text-white font-bold text-lg">Team Eagle</div>
+                <div class="text-white/40 text-xs">Dads Golf Trip 2025</div>
+              </div>
+              <div class="ml-auto text-right">
+                <div class="text-gold font-black text-2xl" style="text-shadow: 0 0 15px rgba(207,168,76,0.4);">-7</div>
+                <div class="text-white/30 text-xs">thru F</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section label -->
+          <div class="px-4 py-2 flex justify-between items-center border-b border-white/5" style="background: #0d1520;">
+            <span class="text-gold/70 text-xs font-bold uppercase tracking-widest">Front 9</span>
+            <span class="text-white/30 text-xs">Out: 35 (par 36)</span>
+          </div>
+
+          <div style="background: #090d14;" class="divide-y divide-white/5">
+            <div class="flex items-center px-4 py-3.5 gap-3">
+              <div class="w-9 text-center"><div class="text-white/20 text-xs">Hole</div><div class="text-white/70 font-bold text-lg">1</div></div>
+              <div class="w-9 text-center"><div class="text-white/20 text-xs">Par</div><div class="text-white/50 text-base">4</div></div>
+              <div class="flex-1 flex justify-center">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-xl shadow-lg border-2 border-red-500" style="background: rgba(204,0,0,0.2); color: #ff6b6b; box-shadow: 0 0 12px rgba(204,0,0,0.3);">3</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-10 h-10 rounded-xl font-bold text-xl flex items-center justify-center text-white/60" style="background: #1c2333;">−</button>
+                <button class="w-10 h-10 rounded-xl font-bold text-xl flex items-center justify-center text-white/60" style="background: #1c2333;">+</button>
+              </div>
+            </div>
+            <div class="flex items-center px-4 py-3.5 gap-3">
+              <div class="w-9 text-center"><div class="text-white/20 text-xs">Hole</div><div class="text-white/70 font-bold text-lg">2</div></div>
+              <div class="w-9 text-center"><div class="text-white/20 text-xs">Par</div><div class="text-white/50 text-base">3</div></div>
+              <div class="flex-1 flex justify-center">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-xl border-2 border-yellow-400" style="background: rgba(255,215,0,0.15); color: #FFD700; box-shadow: 0 0 16px rgba(255,215,0,0.35);">1</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-10 h-10 rounded-xl font-bold text-xl flex items-center justify-center text-white/60" style="background: #1c2333;">−</button>
+                <button class="w-10 h-10 rounded-xl font-bold text-xl flex items-center justify-center text-white/60" style="background: #1c2333;">+</button>
+              </div>
+            </div>
+            <div class="flex items-center px-4 py-3.5 gap-3 opacity-40">
+              <div class="w-9 text-center"><div class="text-white/20 text-xs">Hole</div><div class="text-white/70 font-bold text-lg">3</div></div>
+              <div class="w-9 text-center"><div class="text-white/20 text-xs">Par</div><div class="text-white/50 text-base">5</div></div>
+              <div class="flex-1 flex justify-center">
+                <div class="w-12 h-12 rounded-full border border-dashed border-white/20 flex items-center justify-center text-white/20 font-bold text-xl">—</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="w-10 h-10 rounded-xl font-bold text-xl flex items-center justify-center text-white/20" style="background: #1c2333;">−</button>
+                <button class="w-10 h-10 rounded-xl font-bold text-xl flex items-center justify-center" style="background: rgba(207,168,76,0.15); color: #CFA84C; border: 1px solid rgba(207,168,76,0.3);">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B: HOME -->
+        <div id="b-home" class="screen screen-content hidden" style="font-family: system-ui, sans-serif; background: #090d14;">
+          <div class="px-5 pt-10 pb-8 text-center" style="background: linear-gradient(180deg, #111927 0%, #090d14 100%);">
+            <div class="flex justify-between text-white/40 text-xs mb-8">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="text-5xl mb-4">⛳</div>
+            <h1 class="text-white text-3xl font-black tracking-tight">ScrambleScorer</h1>
+            <p class="text-white/30 text-sm mt-1 uppercase tracking-widest">Live Scoring</p>
+          </div>
+
+          <div class="px-5 py-6 flex flex-col gap-4">
+            <div class="rounded-2xl p-5 border border-white/10" style="background: #111927;">
+              <h2 class="text-white font-bold text-sm mb-3 uppercase tracking-wide">Join a Match</h2>
+              <select class="w-full rounded-xl px-4 py-3 text-white/70 text-sm focus:outline-none border border-white/10 appearance-none" style="background: #1c2a3e;">
+                <option>Select a match…</option>
+                <option>Dads Golf Trip 2025</option>
+              </select>
+              <button class="mt-3 w-full font-bold py-3 rounded-xl text-sm text-mgd" style="background: #CFA84C;">Join Match →</button>
+            </div>
+
+            <div class="text-center text-white/20 text-sm">— or —</div>
+
+            <div class="rounded-2xl p-5 border border-white/10" style="background: #111927;">
+              <h2 class="text-white/80 font-bold text-sm mb-1">Create New Match</h2>
+              <p class="text-white/30 text-xs mb-4">Set up a new scramble for your group</p>
+              <button class="w-full font-bold py-3 rounded-xl text-sm border border-white/20 text-white/60 hover:border-gold/40 transition-colors" style="background: #1c2a3e;">+ New Match</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end phone-frame B -->
+    </div>
+
+    <!-- ═══════════════════════════════ DESIGN C ═══════════════════════════════ -->
+    <div id="design-c" class="design-block hidden flex-col items-center gap-4">
+      <div class="text-gold text-xs font-bold uppercase tracking-widest">Direction C</div>
+      <div class="phone-frame bg-white">
+
+        <!-- C: LEADERBOARD -->
+        <div id="c-leaderboard" class="screen screen-content" style="font-family: system-ui, sans-serif; background: #f5f5f5;">
+          <div class="bg-white px-5 pt-8 pb-5 border-b border-gray-100">
+            <div class="flex justify-between text-gray-300 text-xs mb-5">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-400 text-xs font-medium uppercase tracking-wider mb-0.5">Scramble Tournament</p>
+                <h1 class="text-gray-900 text-xl font-black">Dads Golf Trip 2025</h1>
+              </div>
+              <div class="flex items-center gap-1.5 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
+                <span class="live-dot w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="text-green-700 text-xs font-bold">Live</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leader card — hero treatment -->
+          <div class="mx-4 mt-4 mb-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-mg to-mgd px-4 py-1.5">
+              <span class="text-white/80 text-xs uppercase tracking-widest font-bold">Tournament Leader</span>
+            </div>
+            <div class="flex items-center px-4 py-4 gap-4">
+              <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                <span class="text-2xl">🦅</span>
+              </div>
+              <div class="flex-1">
+                <div class="text-gray-900 font-black text-xl">Team Eagle</div>
+                <div class="text-gray-400 text-sm">Finished · 18 holes</div>
+              </div>
+              <div class="text-right">
+                <div class="text-red-600 font-black text-4xl leading-none">-7</div>
+                <div class="text-gray-400 text-xs mt-0.5">score to par</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rest of standings -->
+          <div class="mx-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+            <!-- Header -->
+            <div class="grid grid-cols-[44px_1fr_72px_56px] px-4 py-2 border-b border-gray-50">
+              <div class="text-gray-300 text-xs font-bold text-center">#</div>
+              <div class="text-gray-300 text-xs font-bold">Team</div>
+              <div class="text-gray-300 text-xs font-bold text-center">Score</div>
+              <div class="text-gray-300 text-xs font-bold text-center">Thru</div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_56px] items-center px-4 py-3.5 border-b border-gray-50">
+              <div class="text-center"><span class="text-gray-400 font-bold">2</span></div>
+              <div class="text-gray-800 font-semibold">The Back Nine</div>
+              <div class="text-center"><span class="text-red-600 font-bold text-xl">-5</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">16</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_56px] items-center px-4 py-3.5 border-b border-gray-50 bg-gray-50/50">
+              <div class="text-center"><span class="text-gray-400 font-bold">3</span></div>
+              <div class="text-gray-800 font-semibold">Mulligan Masters</div>
+              <div class="text-center"><span class="text-red-600 font-bold text-xl">-4</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">14</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_56px] items-center px-4 py-3.5 border-b border-gray-50">
+              <div class="text-center"><span class="text-gray-300 font-bold">T4</span></div>
+              <div class="text-gray-600 font-medium">Iron Johns</div>
+              <div class="text-center"><span class="text-red-500 font-bold text-xl">-2</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">13</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_56px] items-center px-4 py-3.5 border-b border-gray-50 bg-gray-50/50">
+              <div class="text-center"><span class="text-gray-300 font-bold">T4</span></div>
+              <div class="text-gray-600 font-medium">Slice of Life</div>
+              <div class="text-center"><span class="text-red-500 font-bold text-xl">-2</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">11</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_56px] items-center px-4 py-3.5">
+              <div class="text-center"><span class="text-gray-300 font-bold">6</span></div>
+              <div class="text-gray-600 font-medium">Bogey Boys</div>
+              <div class="text-center"><span class="text-gray-500 font-bold text-xl">E</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">9</span></div>
+            </div>
+          </div>
+
+          <!-- Chat -->
+          <div class="mx-4 mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+              <svg class="w-4 h-4 text-mg" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H9l-4 4v-4H4a2 2 0 01-2-2V5z"/></svg>
+              <span class="text-gray-700 font-bold text-sm">Match Chat</span>
+            </div>
+            <div class="px-4 py-3 flex flex-col gap-2.5 min-h-20">
+              <div class="text-center"><span class="text-xs text-gray-400 italic bg-gray-50 px-2 py-0.5 rounded-full"><b>Team Eagle</b> made birdie on 14 🐦</span></div>
+              <div class="flex flex-col items-start">
+                <span class="text-xs font-bold text-mg mb-0.5">The Back Nine</span>
+                <div class="bg-gray-100 rounded-2xl rounded-tl-md px-3 py-2 text-sm text-gray-700">Nice shot on 12!</div>
+              </div>
+              <div class="flex flex-col items-end">
+                <div class="bg-mg rounded-2xl rounded-tr-md px-3 py-2 text-sm text-white">Thanks, that putt was lucky 😅</div>
+              </div>
+            </div>
+            <div class="border-t border-gray-100 p-3 flex gap-2">
+              <input class="flex-1 bg-gray-100 rounded-2xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-mg/20 border border-transparent focus:border-mg/20" placeholder="Message…" />
+              <button class="bg-mg text-white font-bold w-10 h-10 rounded-full flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- C: SCORE ENTRY -->
+        <div id="c-score" class="screen screen-content hidden" style="font-family: system-ui, sans-serif; background: #f5f5f5;">
+          <div class="bg-white px-5 pt-8 pb-5 border-b border-gray-100">
+            <div class="flex justify-between text-gray-300 text-xs mb-4">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-mg/10 rounded-full flex items-center justify-center">
+                <span class="text-mg font-black text-xl">E</span>
+              </div>
+              <div>
+                <div class="text-gray-900 font-black text-lg">Team Eagle</div>
+                <div class="text-gray-400 text-xs">Dads Golf Trip 2025</div>
+              </div>
+              <div class="ml-auto bg-red-50 px-3 py-2 rounded-xl text-right border border-red-100">
+                <div class="text-red-600 font-black text-2xl leading-none">-7</div>
+                <div class="text-red-400 text-xs">to par</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-4 pt-4 flex flex-col gap-2 pb-6">
+            <!-- Section label -->
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-gray-700 font-bold text-sm">Front 9</span>
+              <span class="text-gray-400 text-xs">Out: 35 · Par 36</span>
+            </div>
+
+            <!-- Hole cards -->
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <div class="flex items-center px-4 py-3.5 border-b border-gray-50">
+                <div class="flex-1">
+                  <span class="text-gray-500 text-sm font-medium">Hole 1</span>
+                  <span class="ml-2 text-gray-300 text-xs">Par 4</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl text-gray-500 font-bold text-xl flex items-center justify-center">−</button>
+                  <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow">
+                    <span class="text-white font-black text-xl">3</span>
+                  </div>
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl text-gray-500 font-bold text-xl flex items-center justify-center">+</button>
+                </div>
+              </div>
+              <div class="flex items-center px-4 py-3.5 border-b border-gray-50">
+                <div class="flex-1">
+                  <span class="text-gray-500 text-sm font-medium">Hole 2</span>
+                  <span class="ml-2 text-gray-300 text-xs">Par 3</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl text-gray-500 font-bold text-xl flex items-center justify-center">−</button>
+                  <div class="w-10 h-10 rounded-full border-4 border-yellow-400 bg-yellow-50 flex items-center justify-center shadow">
+                    <span class="text-yellow-700 font-black text-xl">1</span>
+                  </div>
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl text-gray-500 font-bold text-xl flex items-center justify-center">+</button>
+                </div>
+              </div>
+              <div class="flex items-center px-4 py-3.5 opacity-50">
+                <div class="flex-1">
+                  <span class="text-gray-500 text-sm font-medium">Hole 3</span>
+                  <span class="ml-2 text-gray-300 text-xs">Par 5</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button class="w-9 h-9 bg-gray-50 rounded-xl text-gray-300 font-bold text-xl flex items-center justify-center" disabled>−</button>
+                  <div class="w-10 h-10 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center">
+                    <span class="text-gray-300 font-bold text-xl">—</span>
+                  </div>
+                  <button class="w-9 h-9 bg-mg/10 rounded-xl text-mg font-bold text-xl flex items-center justify-center border border-mg/20">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-3 mb-1">
+              <span class="text-gray-700 font-bold text-sm">Back 9</span>
+              <span class="text-gray-400 text-xs">In: 28 · Par 36</span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <div class="flex items-center px-4 py-3.5 border-b border-gray-50">
+                <div class="flex-1">
+                  <span class="text-gray-500 text-sm font-medium">Hole 10</span>
+                  <span class="ml-2 text-gray-300 text-xs">Par 4</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl text-gray-500 font-bold text-xl flex items-center justify-center">−</button>
+                  <div class="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center shadow">
+                    <span class="text-white font-black text-xl">5</span>
+                  </div>
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl text-gray-500 font-bold text-xl flex items-center justify-center">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C: HOME -->
+        <div id="c-home" class="screen screen-content hidden" style="font-family: system-ui, sans-serif; background: #f5f5f5;">
+          <div class="bg-white px-5 pt-10 pb-6 border-b border-gray-100">
+            <div class="flex justify-between text-gray-300 text-xs mb-6">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-4xl">⛳</div>
+              <div>
+                <h1 class="text-gray-900 text-2xl font-black">ScrambleScorer</h1>
+                <p class="text-gray-400 text-sm">Live scramble scoring</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-4 py-5 flex flex-col gap-4">
+            <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+              <h2 class="text-gray-900 font-bold mb-3">Join a Match</h2>
+              <select class="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-gray-600 text-sm focus:outline-none focus:border-mg appearance-none font-medium">
+                <option>Select a match…</option>
+                <option>Dads Golf Trip 2025</option>
+                <option>Saturday Scramble</option>
+              </select>
+              <button class="mt-3 w-full bg-mg text-white font-bold py-3 rounded-xl text-sm">Join Match →</button>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="flex-1 h-px bg-gray-200"></div>
+              <span class="text-gray-400 text-sm">or</span>
+              <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <button class="w-full bg-white text-gray-700 font-bold py-4 rounded-2xl text-sm border-2 border-dashed border-gray-200 hover:border-mg hover:text-mg transition-colors flex items-center justify-center gap-2">
+              <span class="text-xl">+</span> Create New Match
+            </button>
+
+            <!-- Recent matches -->
+            <div class="mt-1">
+              <p class="text-gray-400 text-xs uppercase tracking-wider font-bold mb-2 px-1">Recent</p>
+              <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                <div class="flex items-center px-4 py-3.5 gap-3 border-b border-gray-50">
+                  <div class="w-8 h-8 bg-mg/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="text-mg text-sm">🏌️</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-gray-800 font-semibold text-sm truncate">Dads Golf Trip 2025</div>
+                    <div class="text-gray-400 text-xs">In progress · 6 teams</div>
+                  </div>
+                  <span class="text-mg font-bold text-xs">Join →</span>
+                </div>
+                <div class="flex items-center px-4 py-3.5 gap-3">
+                  <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="text-gray-400 text-sm">🏌️</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-gray-600 font-medium text-sm truncate">Spring Scramble</div>
+                    <div class="text-gray-400 text-xs">Finished · Apr 20</div>
+                  </div>
+                  <span class="text-gray-300 font-bold text-xs">View →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end phone-frame C -->
+    </div>
+
+    <!-- ═══════════════════════════════ DESIGN D ═══════════════════════════════ -->
+    <div id="design-d" class="design-block flex flex-col items-center gap-4">
+      <div class="text-gold text-xs font-bold uppercase tracking-widest">★ Direction D</div>
+      <div class="phone-frame" style="background: #f2f2f2;">
+
+        <!-- D: LEADERBOARD -->
+        <div id="d-leaderboard" class="screen screen-content" style="font-family: system-ui, sans-serif; background: #f2f2f2;">
+          <!-- Green gradient header -->
+          <div style="background: linear-gradient(160deg, #005a3c 0%, #006747 45%, #007a52 100%);" class="px-5 pt-8 pb-5">
+            <div class="flex justify-between text-white/50 text-xs mb-3">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex justify-center mb-2">
+              <span class="border border-gold/50 text-gold text-xs px-3 py-0.5 rounded-full tracking-widest uppercase" style="font-family: Georgia, serif; background: rgba(207,168,76,0.1);">Official Scoring</span>
+            </div>
+            <h1 class="text-white text-2xl font-bold text-center" style="font-family: Georgia, serif; letter-spacing: 0.02em;">Dads Golf Trip 2025</h1>
+            <p class="text-gold/80 text-center text-xs tracking-[0.2em] uppercase mt-0.5 mb-3" style="font-family: Georgia, serif;">Leaderboard</p>
+            <div class="flex items-center justify-center gap-2">
+              <span class="live-dot w-2 h-2 bg-green-400 rounded-full"></span>
+              <span class="text-white/50 text-xs">Live · Updated 2:34 PM</span>
+            </div>
+          </div>
+
+          <!-- Hero leader card -->
+          <div class="mx-3 mt-3 mb-2 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+            <div style="background: #006747; height: 3px;"></div>
+            <div class="flex items-center px-4 py-4 gap-3">
+              <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0 border border-gold/30">
+                <span class="text-gold font-black" style="font-family: Georgia, serif;">1</span>
+              </div>
+              <div class="flex-1">
+                <div class="text-gray-900 font-bold text-base">Team Eagle</div>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-xs text-gray-400">Finished ·</span>
+                  <span class="text-xs text-mg font-semibold">Leading by 2</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-red-600 font-black text-4xl leading-none">-7</div>
+                <div class="text-gray-400 text-xs mt-0.5 text-right">thru F</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standings table card -->
+          <div class="mx-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+            <div class="grid grid-cols-[44px_1fr_72px_52px] px-4 py-2 border-b border-gray-50">
+              <div class="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Pos</div>
+              <div class="text-gray-300 text-xs font-bold uppercase tracking-wide">Team</div>
+              <div class="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Score</div>
+              <div class="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Thru</div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50">
+              <div class="text-center">
+                <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mx-auto"><span class="text-gray-500 font-bold text-xs">2</span></div>
+              </div>
+              <div class="text-gray-800 font-semibold text-sm">The Back Nine</div>
+              <div class="text-center"><span class="text-red-600 font-bold text-xl">-5</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">16</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50" style="background: #fafafa;">
+              <div class="text-center">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center mx-auto" style="background: #fef3c7; border: 1px solid #fcd34d;"><span class="font-bold text-xs" style="color: #92400e;">3</span></div>
+              </div>
+              <div class="text-gray-700 font-semibold text-sm">Mulligan Masters</div>
+              <div class="text-center"><span class="text-red-600 font-bold text-xl">-4</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">14</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50">
+              <div class="text-center"><span class="text-gray-300 font-bold text-sm">T4</span></div>
+              <div class="text-gray-600 font-medium text-sm">Iron Johns</div>
+              <div class="text-center"><span class="text-red-500 font-bold text-xl">-2</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">13</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50" style="background: #fafafa;">
+              <div class="text-center"><span class="text-gray-300 font-bold text-sm">T4</span></div>
+              <div class="text-gray-600 font-medium text-sm">Slice of Life</div>
+              <div class="text-center"><span class="text-red-500 font-bold text-xl">-2</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">11</span></div>
+            </div>
+            <div class="grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5">
+              <div class="text-center"><span class="text-gray-300 font-bold text-sm">6</span></div>
+              <div class="text-gray-500 font-medium text-sm">Bogey Boys</div>
+              <div class="text-center"><span class="text-gray-500 font-bold text-xl">E</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">9</span></div>
+            </div>
+          </div>
+
+          <!-- Chat card -->
+          <div class="mx-3 mb-6 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+            <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2" style="background: #006747;">
+              <svg class="w-3.5 h-3.5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H9l-4 4v-4H4a2 2 0 01-2-2V5z"/></svg>
+              <span class="text-gold font-bold text-xs uppercase tracking-widest" style="font-family: Georgia, serif;">Match Chat</span>
+            </div>
+            <div class="px-4 py-3 flex flex-col gap-2.5 min-h-20">
+              <div class="text-center">
+                <span class="text-xs text-gray-400 italic bg-gray-50 px-2 py-0.5 rounded-full"><b class="text-gray-500">Team Eagle</b> made birdie on 14 🐦</span>
+              </div>
+              <div class="flex flex-col items-start">
+                <span class="text-xs font-bold mb-0.5" style="color: #006747;">The Back Nine</span>
+                <div class="bg-gray-100 rounded-2xl rounded-tl-md px-3 py-2 text-sm text-gray-700">Nice shot on 12!</div>
+              </div>
+              <div class="flex flex-col items-end">
+                <div class="rounded-2xl rounded-tr-md px-3 py-2 text-sm text-white" style="background: #006747;">Thanks, lucky putt 😅</div>
+              </div>
+            </div>
+            <div class="border-t border-gray-100 p-3 flex gap-2">
+              <input class="flex-1 bg-gray-100 rounded-2xl px-4 py-2 text-sm text-gray-700 focus:outline-none border border-transparent" placeholder="Message as Team Eagle…" />
+              <button class="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm" style="background: #006747;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- D: SCORE ENTRY -->
+        <div id="d-score" class="screen screen-content hidden" style="font-family: system-ui, sans-serif; background: #f2f2f2;">
+          <!-- Green gradient header -->
+          <div style="background: linear-gradient(160deg, #005a3c 0%, #006747 45%, #007a52 100%);" class="px-5 pt-8 pb-5">
+            <div class="flex justify-between text-white/50 text-xs mb-4">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-full flex items-center justify-center border border-gold/40 flex-shrink-0" style="background: rgba(207,168,76,0.15);">
+                <span class="text-gold font-black text-lg" style="font-family: Georgia, serif;">E</span>
+              </div>
+              <div>
+                <div class="text-white font-bold text-lg">Team Eagle</div>
+                <div class="text-white/50 text-xs">Dads Golf Trip 2025</div>
+              </div>
+              <div class="ml-auto bg-white/10 rounded-xl px-3 py-2 text-right border border-white/20">
+                <div class="text-red-300 font-black text-2xl leading-none">-7</div>
+                <div class="text-white/40 text-xs">to par</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-3 pt-4 pb-6 flex flex-col gap-3">
+            <!-- Front 9 -->
+            <div class="flex items-center justify-between px-1">
+              <span class="text-gray-700 font-bold text-sm" style="font-family: Georgia, serif;">Front 9</span>
+              <span class="text-gray-400 text-xs">Out: 35 · Par 36</span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <!-- Scored hole: birdie -->
+              <div class="flex items-center px-4 py-3.5 border-b border-gray-50 gap-3">
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-700 font-semibold text-sm">Hole 1</span>
+                  <span class="ml-1.5 text-gray-300 text-xs">· Par 4</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">−</button>
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center font-black text-lg text-white shadow" style="background: #CC0000;">3</div>
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">+</button>
+                </div>
+              </div>
+              <!-- Eagle -->
+              <div class="flex items-center px-4 py-3.5 border-b border-gray-50 gap-3" style="background: #fafafa;">
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-700 font-semibold text-sm">Hole 2</span>
+                  <span class="ml-1.5 text-gray-300 text-xs">· Par 3</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">−</button>
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center font-black text-lg border-4 shadow" style="border-color: #CFA84C; background: #fffbeb; color: #92400e;">1</div>
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">+</button>
+                </div>
+              </div>
+              <!-- Par -->
+              <div class="flex items-center px-4 py-3.5 border-b border-gray-50 gap-3">
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-700 font-semibold text-sm">Hole 3</span>
+                  <span class="ml-1.5 text-gray-300 text-xs">· Par 5</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">−</button>
+                  <div class="w-10 h-10 rounded-lg flex items-center justify-center font-black text-lg text-white shadow" style="background: #374151;">5</div>
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">+</button>
+                </div>
+              </div>
+              <!-- Empty hole -->
+              <div class="flex items-center px-4 py-3.5 gap-3 opacity-50" style="background: #fafafa;">
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-500 font-semibold text-sm">Hole 4</span>
+                  <span class="ml-1.5 text-gray-300 text-xs">· Par 4</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button class="w-9 h-9 bg-gray-50 rounded-xl font-bold text-lg text-gray-300 flex items-center justify-center" disabled>−</button>
+                  <div class="w-10 h-10 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center font-bold text-xl text-gray-300">—</div>
+                  <button class="w-9 h-9 rounded-xl font-bold text-lg flex items-center justify-center border" style="background: rgba(0,103,71,0.06); color: #006747; border-color: rgba(0,103,71,0.2);">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Back 9 -->
+            <div class="flex items-center justify-between px-1 mt-1">
+              <span class="text-gray-700 font-bold text-sm" style="font-family: Georgia, serif;">Back 9</span>
+              <span class="text-gray-400 text-xs">In: 28 · Par 36</span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <!-- Bogey -->
+              <div class="flex items-center px-4 py-3.5 border-b border-gray-50 gap-3">
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-700 font-semibold text-sm">Hole 10</span>
+                  <span class="ml-1.5 text-gray-300 text-xs">· Par 4</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">−</button>
+                  <div class="w-10 h-10 rounded-lg flex items-center justify-center font-black text-lg text-white shadow border-2" style="background: #1e3a5f; border-color: #1e4a7f;">5</div>
+                  <button class="w-9 h-9 bg-gray-100 rounded-xl font-bold text-lg text-gray-500 flex items-center justify-center">+</button>
+                </div>
+              </div>
+              <div class="flex items-center px-4 py-3.5 gap-3 opacity-50" style="background: #fafafa;">
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-500 font-semibold text-sm">Hole 11</span>
+                  <span class="ml-1.5 text-gray-300 text-xs">· Par 3</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <button class="w-9 h-9 bg-gray-50 rounded-xl font-bold text-lg text-gray-300 flex items-center justify-center" disabled>−</button>
+                  <div class="w-10 h-10 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center font-bold text-xl text-gray-300">—</div>
+                  <button class="w-9 h-9 rounded-xl font-bold text-lg flex items-center justify-center border" style="background: rgba(0,103,71,0.06); color: #006747; border-color: rgba(0,103,71,0.2);">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D: HOME -->
+        <div id="d-home" class="screen screen-content hidden" style="font-family: system-ui, sans-serif; background: #f2f2f2;">
+          <!-- Compact green header bar -->
+          <div style="background: linear-gradient(160deg, #005a3c 0%, #006747 45%, #007a52 100%);" class="px-5 pt-8 pb-6">
+            <div class="flex justify-between text-white/50 text-xs mb-5">
+              <span>9:41</span><span>●●●</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-3xl">⛳</span>
+              <div>
+                <h1 class="text-white text-2xl font-bold leading-tight" style="font-family: Georgia, serif;">ScrambleScorer</h1>
+                <p class="text-gold/80 text-xs tracking-widest uppercase mt-0.5" style="font-family: Georgia, serif;">Live Scramble Scoring</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-3 py-4 flex flex-col gap-3">
+            <!-- Join card -->
+            <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+              <h2 class="text-gray-900 font-bold text-base mb-3">Join a Match</h2>
+              <select class="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-gray-600 text-sm focus:outline-none appearance-none font-medium">
+                <option>Select a match…</option>
+                <option>Dads Golf Trip 2025</option>
+                <option>Saturday Scramble</option>
+              </select>
+              <button class="mt-3 w-full text-white font-bold py-3 rounded-xl text-sm shadow-sm transition-all" style="background: #006747;">Join Match →</button>
+            </div>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-3 px-1">
+              <div class="flex-1 h-px bg-gray-200"></div>
+              <span class="text-gray-400 text-sm">or</span>
+              <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <!-- Create -->
+            <button class="w-full bg-white text-gray-600 font-bold py-4 rounded-2xl text-sm border-2 border-dashed border-gray-200 flex items-center justify-center gap-2 hover:border-mg hover:text-mg transition-colors shadow-sm">
+              <span style="color: #CFA84C;" class="text-xl">+</span> Create New Match
+            </button>
+
+            <!-- Recent -->
+            <div class="mt-1">
+              <p class="text-gray-400 text-xs uppercase tracking-wider font-bold mb-2 px-1">Recent Matches</p>
+              <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                <div class="flex items-center px-4 py-3.5 gap-3 border-b border-gray-50">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(0,103,71,0.08);">
+                    <span class="text-sm">🏌️</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-gray-800 font-semibold text-sm truncate">Dads Golf Trip 2025</div>
+                    <div class="text-gray-400 text-xs flex items-center gap-1">
+                      <span class="live-dot w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                      In progress · 6 teams
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold" style="color: #006747;">Join →</span>
+                </div>
+                <div class="flex items-center px-4 py-3.5 gap-3">
+                  <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="text-sm text-gray-400">🏌️</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-gray-600 font-medium text-sm truncate">Spring Scramble</div>
+                    <div class="text-gray-400 text-xs">Finished · Apr 20</div>
+                  </div>
+                  <span class="text-gray-300 text-xs font-bold">View →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end phone-frame D -->
+    </div>
+
+  </div><!-- end frames row -->
+
+  <!-- Notes section -->
+  <div class="max-w-6xl mx-auto mt-10 grid grid-cols-4 gap-4 text-sm">
+    <div id="notes-d" class="notes-block bg-white/5 rounded-xl p-4 border border-gold/20 text-gray-300">
+      <div class="text-gold font-bold mb-2">★ D — What's different</div>
+      <ul class="text-gray-400 text-xs space-y-1.5 list-disc list-inside">
+        <li>Masters green gradient header (A) on white-card body (C)</li>
+        <li>Georgia serif for brand titles, sans-serif for data</li>
+        <li>Hero card for leader with green accent stripe</li>
+        <li>Gold double-circle for eagle, red circle for birdie</li>
+        <li>Empty holes show green-tinted + button as next action</li>
+        <li>Chat green header bar + circular green send button</li>
+        <li>Home has compact header + recent matches list</li>
+        <li>Official Scoring badge in gold</li>
+      </ul>
+    </div>
+    <div id="notes-a" class="notes-block hidden bg-white/5 rounded-xl p-4 border border-white/10 text-gray-300">
+      <div class="text-gold font-bold mb-2">A — What's different</div>
+      <ul class="text-gray-400 text-xs space-y-1.5 list-disc list-inside">
+        <li>Gradient header instead of flat green</li>
+        <li>Gold circle badges for top 3 positions</li>
+        <li>Live dot indicator on leaderboard</li>
+        <li>Leader row has subtle gold background + description text</li>
+        <li>Chat uses rounded pill style</li>
+        <li>Home has serif style kept, card-in-card layout</li>
+        <li>Score row has Hole/Par labels above numbers</li>
+      </ul>
+    </div>
+    <div id="notes-b" class="notes-block hidden bg-white/5 rounded-xl p-4 border border-white/10 text-gray-300">
+      <div class="text-gold font-bold mb-2">B — What's different</div>
+      <ul class="text-gray-400 text-xs space-y-1.5 list-disc list-inside">
+        <li>Full dark mode — near-black backgrounds</li>
+        <li>Leader score glows gold with box-shadow</li>
+        <li>Gold left-border accent on leader row</li>
+        <li>Birdie/eagle badges glow with matching color</li>
+        <li>Sans-serif font — more broadcast feel</li>
+        <li>Chat input is dark, gold send button</li>
+        <li>Home uses subtle gradient hero + gold CTA</li>
+      </ul>
+    </div>
+    <div id="notes-c" class="notes-block hidden bg-white/5 rounded-xl p-4 border border-white/10 text-gray-300">
+      <div class="text-gold font-bold mb-2">C — What's different</div>
+      <ul class="text-gray-400 text-xs space-y-1.5 list-disc list-inside">
+        <li>White-dominant, gray background — very clean</li>
+        <li>Leader gets a hero card treatment, not just a row</li>
+        <li>Score badges are in individual cards per hole</li>
+        <li>Chat uses pill-shaped input + circular send button</li>
+        <li>Home has "Recent matches" section</li>
+        <li>Sans-serif throughout — modern app feel</li>
+        <li>Dashed border "Create" button — inviting</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="text-center text-gray-600 text-xs mt-8 mb-4">
+    Open <code class="text-gray-400">design/mockups.html</code> directly in your browser · no server needed
+  </p>
+
+  <script>
+    let currentDesign = 'd';
+    let currentScreen = 'leaderboard';
+
+    function setDesign(d) {
+      ['a','b','c','d'].forEach(x => {
+        document.getElementById(`design-${x}`).classList.toggle('hidden', x !== d);
+        document.getElementById(`design-${x}`).classList.toggle('flex', x === d);
+        document.getElementById(`tab-${x}`).classList.toggle('active', x === d);
+        document.getElementById(`desc-${x}`).classList.toggle('hidden', x !== d);
+        document.getElementById(`notes-${x}`).classList.toggle('hidden', x !== d);
+      });
+      currentDesign = d;
+    }
+
+    function setScreen(s) {
+      ['leaderboard','score','home'].forEach(x => {
+        const btn = document.getElementById(`scr-${x}`);
+        btn.classList.toggle('active', x === s);
+        ['a','b','c','d'].forEach(d => {
+          const el = document.getElementById(`${d}-${x}`);
+          if (el) el.classList.toggle('hidden', x !== s);
+        });
+      });
+      currentScreen = s;
+    }
+
+    // Init — default to D (Augusta Modern)
+    document.getElementById('design-d').classList.remove('hidden');
+    document.getElementById('design-d').classList.add('flex');
+    document.getElementById('design-a').classList.add('hidden');
+    document.getElementById('desc-a').classList.add('hidden');
+    document.getElementById('notes-a').classList.add('hidden');
+  </script>
+</body>
+</html>
