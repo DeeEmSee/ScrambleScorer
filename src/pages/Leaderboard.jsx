@@ -45,7 +45,9 @@ export default function Leaderboard() {
   const [messages, setMessages] = useState([])
   const [chatInput, setChatInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const messagesEndRef = useRef(null)
+  const fileInputRef = useRef(null)
   const myTeam = useState(() => {
     try { return JSON.parse(localStorage.getItem(`scramble_team_${id}`) || 'null') }
     catch { return null }
@@ -121,6 +123,21 @@ export default function Leaderboard() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  async function sendImage(file) {
+    if (!myTeam || uploading) return
+    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB'); return }
+    setUploading(true)
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `${id}/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('chat-images').upload(path, file)
+    if (error) { console.error(error); setUploading(false); return }
+    const { data: { publicUrl } } = supabase.storage.from('chat-images').getPublicUrl(path)
+    await supabase.from('messages').insert({
+      scramble_id: id, team_id: myTeam.id, team_name: myTeam.name, text: publicUrl, type: 'image',
+    })
+    setUploading(false)
+  }
 
   async function sendMessage() {
     if (!chatInput.trim() || !myTeam || sending) return
@@ -198,7 +215,7 @@ export default function Leaderboard() {
           </div>
         ) : (
           <div className="mx-3 mt-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-            <div className="grid grid-cols-[44px_1fr_72px_52px] px-4 py-2 border-b border-gray-50">
+            <div className="grid grid-cols-[44px_1fr_72px_52px] px-4 py-3 border-b border-gray-50">
               <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Pos</div>
               <div className="text-gray-300 text-xs font-bold uppercase tracking-wide">Team</div>
               <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Score</div>
@@ -213,7 +230,7 @@ export default function Leaderboard() {
               return (
                 <div
                   key={team.id}
-                  className={`grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50 last:border-b-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                  className={`grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-5 border-b border-gray-50 last:border-b-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                 >
                   <div className="text-center">
                     {team.holesPlayed > 0
@@ -221,12 +238,12 @@ export default function Leaderboard() {
                       : <span className="text-gray-300 text-sm">—</span>
                     }
                   </div>
-                  <div className={`font-medium text-sm truncate ${team.holesPlayed > 0 ? (i === 0 ? 'text-gray-900 font-bold' : 'text-gray-800') : 'text-gray-400'}`}>
+                  <div className={`font-medium text-base truncate ${team.holesPlayed > 0 ? (i === 0 ? 'text-gray-900 font-bold' : 'text-gray-800') : 'text-gray-400'}`}>
                     {team.name}
                   </div>
                   <div className="text-center">
                     {team.holesPlayed > 0 ? (
-                      <span className={`font-bold text-xl ${
+                      <span className={`font-bold text-2xl ${
                         team.scoreToPar < 0 ? 'text-red-600'
                         : team.scoreToPar > 0 ? 'text-blue-800'
                         : 'text-gray-600'
@@ -234,11 +251,11 @@ export default function Leaderboard() {
                         {formatScore(team.scoreToPar)}
                       </span>
                     ) : (
-                      <span className="text-gray-300 text-xl">—</span>
+                      <span className="text-gray-300 text-2xl">—</span>
                     )}
                   </div>
                   <div className="text-center">
-                    <span className={`text-sm font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-400'}`}>
+                    <span className={`text-base font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-400'}`}>
                       {thru}
                     </span>
                   </div>
@@ -277,6 +294,24 @@ export default function Leaderboard() {
                 )
               }
               const isMe = msg.team_id === myTeam?.id
+              if (msg.type === 'image') {
+                return (
+                  <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                    {!isMe && (
+                      <span className="text-xs font-bold text-masters-green mb-0.5">{msg.team_name}</span>
+                    )}
+                    <img
+                      src={msg.text}
+                      alt="shared photo"
+                      className="max-w-[220px] rounded-2xl object-cover"
+                      style={{ maxHeight: 220 }}
+                    />
+                    <span className="text-xs text-gray-400 mt-0.5">
+                      {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                )
+              }
               return (
                 <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                   {!isMe && (
@@ -301,6 +336,30 @@ export default function Leaderboard() {
           <div className="border-t border-gray-100 p-3 flex gap-2">
             {myTeam ? (
               <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) sendImage(f); e.target.value = '' }}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 text-gray-400 hover:text-masters-green hover:bg-gray-200 transition-colors disabled:opacity-40"
+                >
+                  {uploading ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  )}
+                </button>
                 <input
                   type="text"
                   value={chatInput}
