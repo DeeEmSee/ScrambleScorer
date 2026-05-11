@@ -170,36 +170,43 @@ export default function Setup() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-masters-green text-lg font-bold tracking-wide">New Match Setup</h1>
-          <div className="flex gap-2">
+      <header className="mg-gradient shadow-lg">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => step > 1 ? setStep(step - 1) : navigate('/')}
+            className="text-white/70 hover:text-white text-sm font-medium transition-colors"
+          >
+            ← Back
+          </button>
+          <span className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: 'Georgia, serif' }}>
+            Create New Match
+          </span>
+          <div className="flex gap-1.5">
             {[1, 2, 3].map(s => (
-              <div key={s} className={`w-6 h-1.5 rounded-full transition-colors ${step >= s ? 'bg-masters-green' : 'bg-gray-200'}`} />
+              <div key={s} className={`h-1.5 w-5 rounded-full transition-all ${step >= s ? 'bg-masters-gold' : 'bg-white/30'}`} />
             ))}
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
-        {/* Step 1: Scramble Details */}
+      <main className="flex-1 max-w-md mx-auto w-full px-4 py-5">
+        {/* Step 1: Match Details */}
         {step === 1 && (
-          <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col gap-5">
-            <h2 className="text-masters-green text-xl font-bold">Step 1: Match Details</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Match Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Match Name</label>
               <input
                 type="text"
                 value={scrambleName}
                 onChange={(e) => setScrambleName(e.target.value)}
                 placeholder="e.g. Spring Classic 2025"
-                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none"
+                className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 focus:border-masters-green focus:outline-none text-sm"
               />
             </div>
 
             <div className="relative" ref={dropdownRef}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Golf Course <span className="text-gray-400 font-normal">(optional — auto-fills hole pars)</span>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Golf Course <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <div className="relative">
                 <input
@@ -208,7 +215,7 @@ export default function Setup() {
                   onChange={(e) => { setCourseQuery(e.target.value); setSelectedCourse(null); setError('') }}
                   onFocus={() => courseResults.length > 0 && setShowDropdown(true)}
                   placeholder="Search by course or club name..."
-                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none pr-10"
+                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 focus:border-masters-green focus:outline-none pr-10 text-sm"
                 />
                 {courseSearching && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">⏳</span>
@@ -218,7 +225,7 @@ export default function Setup() {
                 )}
               </div>
               {showDropdown && (
-                <ul className="absolute z-10 w-full bg-white border-2 border-masters-green rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+                <ul className="absolute z-10 w-full bg-white border border-masters-green rounded-xl shadow-lg mt-1 max-h-60 overflow-auto">
                   {courseResults.map(course => (
                     <li
                       key={course.id}
@@ -238,40 +245,43 @@ export default function Setup() {
               )}
               {selectedCourse && (
                 <p className="text-xs text-masters-green mt-1">
-                  Pars loaded from {selectedCourse.club_name} ({selectedCourse._tee} tees) — you can still edit them in the next step.
+                  Pars loaded from {selectedCourse.club_name} ({selectedCourse._tee} tees) — edit in next step.
                 </p>
               )}
               {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Date</label>
               <input
                 type="date"
                 value={scrambleDate}
                 onChange={(e) => setScrambleDate(e.target.value)}
-                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-masters-green focus:outline-none"
+                className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 focus:border-masters-green focus:outline-none text-sm"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Number of Holes</label>
-              <div className="flex gap-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Holes</label>
+              <div className="flex gap-2">
                 {[['18', '18 Holes'], ['front9', 'Front 9'], ['back9', 'Back 9']].map(([mode, label]) => (
                   <button
                     key={mode}
                     onClick={() => handleHoleMode(mode)}
-                    className={`flex-1 py-3 rounded-lg font-bold border-2 transition-colors ${holeMode === mode
+                    className={`flex-1 py-2.5 rounded-xl font-bold text-sm border transition-colors ${holeMode === mode
                       ? 'bg-masters-green text-white border-masters-green'
-                      : 'bg-white text-masters-green border-masters-green hover:bg-masters-green hover:text-white'}`}
+                      : 'bg-white text-masters-green border-gray-200 hover:border-masters-green'}`}
                   >
                     {label}
                   </button>
                 ))}
               </div>
             </div>
+
             <button
               onClick={() => setStep(2)}
               disabled={!scrambleName.trim()}
-              className="bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="bg-masters-green text-white font-bold py-3 rounded-xl hover:bg-masters-darkgreen transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
             >
               {selectedCourse ? 'Next: Review Hole Pars →' : 'Next: Enter Hole Pars →'}
             </button>
@@ -280,84 +290,84 @@ export default function Setup() {
 
         {/* Step 2: Hole Pars */}
         {step === 2 && (
-          <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col gap-5">
-            <h2 className="text-masters-green text-xl font-bold">Step 2: Hole Pars</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4">
             <p className="text-gray-500 text-sm">Set the par for each hole (3, 4, or 5).</p>
 
             {holeMode === '18' ? (
               <>
                 <div>
-                  <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">Front 9</h3>
-                  <div className="grid grid-cols-9 gap-1 text-center mb-1">
-                    {pars.slice(0, 9).map((_, i) => <div key={i} className="text-xs text-gray-400">{i + 1}</div>)}
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-bold text-gray-700" style={{ fontFamily: 'Georgia, serif' }}>Front 9</h3>
+                    <span className="text-gray-400 text-xs">Out: <strong className="text-gray-600">{pars.slice(0,9).reduce((a,b)=>a+b,0)}</strong></span>
                   </div>
-                  <div className="grid grid-cols-9 gap-1">
-                    {pars.slice(0, 9).map((p, i) => (
-                      <input key={i} type="number" value={p} onChange={(e) => setPar(i, e.target.value)}
-                        min={3} max={5} className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none" />
-                    ))}
+                  <div className="overflow-x-auto">
+                    <div className="grid grid-cols-9 gap-1 text-center mb-1 min-w-[270px]">
+                      {pars.slice(0, 9).map((_, i) => <div key={i} className="text-xs text-gray-400">{i + 1}</div>)}
+                    </div>
+                    <div className="grid grid-cols-9 gap-1 min-w-[270px]">
+                      {pars.slice(0, 9).map((p, i) => (
+                        <input key={i} type="number" value={p} onChange={(e) => setPar(i, e.target.value)}
+                          min={3} max={5} className="w-full text-center border border-gray-200 bg-gray-50 rounded-lg py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none text-sm" />
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-right text-sm text-gray-500 mt-1">OUT: <strong>{pars.slice(0,9).reduce((a,b)=>a+b,0)}</strong></div>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">Back 9</h3>
-                  <div className="grid grid-cols-9 gap-1 text-center mb-1">
-                    {pars.slice(9).map((_, i) => <div key={i} className="text-xs text-gray-400">{i + 10}</div>)}
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-bold text-gray-700" style={{ fontFamily: 'Georgia, serif' }}>Back 9</h3>
+                    <span className="text-gray-400 text-xs">In: <strong className="text-gray-600">{pars.slice(9).reduce((a,b)=>a+b,0)}</strong></span>
                   </div>
-                  <div className="grid grid-cols-9 gap-1">
-                    {pars.slice(9).map((p, i) => (
-                      <input key={i+9} type="number" value={p} onChange={(e) => setPar(i+9, e.target.value)}
-                        min={3} max={5} className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none" />
-                    ))}
+                  <div className="overflow-x-auto">
+                    <div className="grid grid-cols-9 gap-1 text-center mb-1 min-w-[270px]">
+                      {pars.slice(9).map((_, i) => <div key={i} className="text-xs text-gray-400">{i + 10}</div>)}
+                    </div>
+                    <div className="grid grid-cols-9 gap-1 min-w-[270px]">
+                      {pars.slice(9).map((p, i) => (
+                        <input key={i+9} type="number" value={p} onChange={(e) => setPar(i+9, e.target.value)}
+                          min={3} max={5} className="w-full text-center border border-gray-200 bg-gray-50 rounded-lg py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none text-sm" />
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-right text-sm text-gray-500 mt-1">IN: <strong>{pars.slice(9).reduce((a,b)=>a+b,0)}</strong></div>
                 </div>
               </>
             ) : (
               <div>
-                <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
+                <h3 className="text-sm font-bold text-gray-700 mb-2" style={{ fontFamily: 'Georgia, serif' }}>
                   {holeMode === 'back9' ? 'Back 9' : 'Front 9'}
                 </h3>
-                <div className="grid grid-cols-9 gap-1 text-center mb-1">
-                  {pars.map((_, i) => <div key={i} className="text-xs text-gray-400">{startingHole + i}</div>)}
-                </div>
-                <div className="grid grid-cols-9 gap-1">
-                  {pars.map((p, i) => (
-                    <input key={i} type="number" value={p} onChange={(e) => setPar(i, e.target.value)}
-                      min={3} max={5} className="w-full text-center border-2 border-gray-300 rounded py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none" />
-                  ))}
+                <div className="overflow-x-auto">
+                  <div className="grid grid-cols-9 gap-1 text-center mb-1 min-w-[270px]">
+                    {pars.map((_, i) => <div key={i} className="text-xs text-gray-400">{startingHole + i}</div>)}
+                  </div>
+                  <div className="grid grid-cols-9 gap-1 min-w-[270px]">
+                    {pars.map((p, i) => (
+                      <input key={i} type="number" value={p} onChange={(e) => setPar(i, e.target.value)}
+                        min={3} max={5} className="w-full text-center border border-gray-200 bg-gray-50 rounded-lg py-2 font-bold text-masters-green focus:border-masters-green focus:outline-none text-sm" />
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
-            <div className="bg-masters-cream rounded-lg px-4 py-3 text-center">
-              <span className="text-gray-600">Total Par: </span>
+            <div className="bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between border border-gray-100">
+              <span className="text-gray-500 text-sm">Total Par</span>
               <strong className="text-masters-green text-xl">{totalPar}</strong>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(1)}
-                className="flex-1 border-2 border-masters-green text-masters-green font-bold py-3 rounded-lg hover:bg-masters-green hover:text-white transition-colors"
-              >
-                ← Back
-              </button>
-              <button
-                onClick={() => setStep(3)}
-                className="flex-2 flex-grow bg-masters-green text-white font-bold py-3 rounded-lg hover:bg-masters-darkgreen transition-colors"
-              >
-                Next: Add Teams →
-              </button>
-            </div>
+            <button
+              onClick={() => setStep(3)}
+              className="bg-masters-green text-white font-bold py-3 rounded-xl hover:bg-masters-darkgreen transition-colors"
+            >
+              Next: Add Teams →
+            </button>
           </div>
         )}
 
         {/* Step 3: Teams */}
         {step === 3 && (
-          <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col gap-5">
-            <h2 className="text-masters-green text-xl font-bold">Step 3: Teams & PINs</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4">
             <p className="text-gray-500 text-sm">
-              Enter team (or player) names. Optionally require and set a 4-digit PIN for each team. Share the PIN privately with each team — they'll use it to enter scores.
+              Enter team names. Optionally require a 4-digit PIN — share it privately so each team can enter scores.
             </p>
 
             <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -370,45 +380,45 @@ export default function Setup() {
               <span className="text-sm font-medium text-gray-700">Require team PINs</span>
             </label>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {teams.map((team, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-gray-400 w-6">{i + 1}</span>
+                  <span className="text-sm font-bold text-gray-400 w-5 flex-shrink-0">{i + 1}</span>
                   <input
                     type="text"
                     value={team.name}
                     onChange={(e) => updateTeam(i, 'name', e.target.value)}
                     placeholder={`Team ${i + 1} name`}
-                    className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 focus:border-masters-green focus:outline-none"
+                    className="flex-1 border border-gray-200 bg-gray-50 rounded-xl px-3 py-2.5 focus:border-masters-green focus:outline-none text-sm"
                   />
                   {requirePins ? (
-                    <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
-                      <span className="px-2 text-xs text-gray-400 bg-gray-50 border-r border-gray-300 py-2">PIN</span>
+                    <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                      <span className="px-2 text-xs text-gray-400 border-r border-gray-200 py-2.5">PIN</span>
                       <input
                         type="text"
                         value={team.pin}
                         onChange={(e) => updateTeam(i, 'pin', e.target.value.replace(/\D/g, '').slice(0, 4))}
                         maxLength={4}
-                        className="w-16 text-center font-bold py-2 focus:outline-none text-masters-green"
+                        className="w-14 text-center font-bold py-2.5 focus:outline-none text-masters-green bg-transparent text-sm"
                       />
                       <button
                         onClick={() => regeneratePin(i)}
-                        className="px-2 text-gray-400 hover:text-masters-green bg-gray-50 border-l border-gray-300 py-2 text-sm"
+                        className="px-2 text-gray-400 hover:text-masters-green border-l border-gray-200 py-2.5 text-sm"
                         title="Regenerate PIN"
                       >
                         ↺
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                      <span className="px-2 text-xs text-gray-300 bg-gray-50 border-r border-gray-200 py-2">PIN</span>
-                      <span className="w-16 text-center text-gray-300 font-medium py-2 text-sm">N/A</span>
+                    <div className="flex items-center border border-gray-100 rounded-xl overflow-hidden bg-gray-50">
+                      <span className="px-2 text-xs text-gray-300 border-r border-gray-100 py-2.5">PIN</span>
+                      <span className="w-14 text-center text-gray-300 font-medium py-2.5 text-sm">N/A</span>
                     </div>
                   )}
                   {teams.length > 2 && (
                     <button
                       onClick={() => removeTeam(i)}
-                      className="text-gray-300 hover:text-under-par text-lg leading-none"
+                      className="text-gray-300 hover:text-under-par text-lg leading-none flex-shrink-0"
                     >
                       ×
                     </button>
@@ -419,32 +429,23 @@ export default function Setup() {
 
             <button
               onClick={addTeam}
-              className="border-2 border-dashed border-masters-green text-masters-green font-medium py-2 rounded-lg hover:bg-masters-cream transition-colors"
+              className="border border-dashed border-masters-green text-masters-green font-medium py-2.5 rounded-xl hover:bg-masters-cream transition-colors text-sm"
             >
               + Add Team
             </button>
 
             {error && <p className="text-under-par text-sm">{error}</p>}
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(2)}
-                className="flex-1 border-2 border-masters-green text-masters-green font-bold py-3 rounded-lg hover:bg-masters-green hover:text-white transition-colors"
-              >
-                ← Back
-              </button>
-              <button
-                onClick={createScramble}
-                disabled={saving}
-                className="flex-grow bg-masters-gold text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-              >
-                {saving ? 'Creating...' : '🏌️ Create Match'}
-              </button>
-            </div>
+            <button
+              onClick={createScramble}
+              disabled={saving}
+              className="bg-masters-green text-white font-bold py-3 rounded-xl hover:bg-masters-darkgreen transition-colors disabled:opacity-50 mt-1"
+            >
+              {saving ? 'Creating...' : '🏌️ Create Match'}
+            </button>
           </div>
         )}
       </main>
-
     </div>
   )
 }

@@ -12,6 +12,14 @@ function formatScore(rel) {
 
 function PositionBadge({ pos, isTied }) {
   const label = `${isTied ? 'T' : ''}${pos}`
+  if (pos === 1) {
+    return (
+      <div className="w-6 h-6 rounded-full flex items-center justify-center mx-auto border"
+        style={{ background: 'rgba(207,168,76,0.15)', borderColor: 'rgba(207,168,76,0.5)' }}>
+        <span className="font-bold text-xs" style={{ color: '#CFA84C', fontFamily: 'Georgia, serif' }}>{label}</span>
+      </div>
+    )
+  }
   if (pos === 2) {
     return (
       <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
@@ -147,12 +155,6 @@ export default function Leaderboard() {
     </Layout>
   )
 
-  const leader = standings.length > 0 && standings[0].holesPlayed > 0 ? standings[0] : null
-  const tableRows = leader ? standings.slice(1) : standings
-  const leadMargin = leader && standings.length > 1 && standings[1]?.holesPlayed > 0
-    ? Math.abs(leader.scoreToPar - standings[1].scoreToPar)
-    : null
-
   return (
     <Layout scrambleName={scramble.name}>
       <div className="w-full sm:max-w-2xl sm:mx-auto">
@@ -195,101 +197,55 @@ export default function Leaderboard() {
             <p className="text-sm text-gray-400 mt-1">Scores will appear here as teams play.</p>
           </div>
         ) : (
-          <>
-            {/* Hero card for leader */}
-            {leader && (
-              <div className="mx-3 mt-3 mb-2 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <div style={{ background: '#006747', height: 3 }} />
-                <div className="flex items-center px-4 py-4 gap-3">
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-masters-gold/30"
-                    style={{ background: 'rgba(207,168,76,0.1)' }}
-                  >
-                    <span className="text-masters-gold font-black" style={{ fontFamily: 'Georgia, serif' }}>1</span>
+          <div className="mx-3 mt-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+            <div className="grid grid-cols-[44px_1fr_72px_52px] px-4 py-2 border-b border-gray-50">
+              <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Pos</div>
+              <div className="text-gray-300 text-xs font-bold uppercase tracking-wide">Team</div>
+              <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Score</div>
+              <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Thru</div>
+            </div>
+            {standings.map((team, i) => {
+              const pos = getPosition(i, standings)
+              const isTied = team.scoreToPar !== null && standings.filter(t => t.scoreToPar === team.scoreToPar).length > 1
+              const thru = thruLabel(team, scramble)
+              const isFinished = thru === 'F'
+
+              return (
+                <div
+                  key={team.id}
+                  className={`grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50 last:border-b-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                >
+                  <div className="text-center">
+                    {team.holesPlayed > 0
+                      ? <PositionBadge pos={pos} isTied={isTied} />
+                      : <span className="text-gray-300 text-sm">—</span>
+                    }
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-gray-900 font-bold text-base truncate">{leader.name}</div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      {leadMargin !== null ? (
-                        <>
-                          <span className="text-xs text-gray-400">Leading by</span>
-                          <span className="text-xs text-masters-green font-semibold">{leadMargin}</span>
-                        </>
-                      ) : (
-                        <span className="text-xs text-gray-400">
-                          {thruLabel(leader, scramble) === 'F' ? 'Finished' : `${leader.holesPlayed} holes played`}
-                        </span>
-                      )}
-                    </div>
+                  <div className={`font-medium text-sm truncate ${team.holesPlayed > 0 ? (i === 0 ? 'text-gray-900 font-bold' : 'text-gray-800') : 'text-gray-400'}`}>
+                    {team.name}
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className={`font-black text-4xl leading-none ${
-                      leader.scoreToPar < 0 ? 'text-red-600'
-                      : leader.scoreToPar > 0 ? 'text-blue-800'
-                      : 'text-gray-700'
-                    }`}>
-                      {formatScore(leader.scoreToPar)}
-                    </div>
-                    <div className="text-gray-400 text-xs mt-0.5">thru {thruLabel(leader, scramble)}</div>
+                  <div className="text-center">
+                    {team.holesPlayed > 0 ? (
+                      <span className={`font-bold text-xl ${
+                        team.scoreToPar < 0 ? 'text-red-600'
+                        : team.scoreToPar > 0 ? 'text-blue-800'
+                        : 'text-gray-600'
+                      }`}>
+                        {formatScore(team.scoreToPar)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-300 text-xl">—</span>
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <span className={`text-sm font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-400'}`}>
+                      {thru}
+                    </span>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Table card for remaining teams */}
-            {tableRows.length > 0 && (
-              <div className="mx-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <div className="grid grid-cols-[44px_1fr_72px_52px] px-4 py-2 border-b border-gray-50">
-                  <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Pos</div>
-                  <div className="text-gray-300 text-xs font-bold uppercase tracking-wide">Team</div>
-                  <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Score</div>
-                  <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Thru</div>
-                </div>
-                {tableRows.map((team, i) => {
-                  const actualIndex = leader ? i + 1 : i
-                  const pos = getPosition(actualIndex, standings)
-                  const isTied = team.scoreToPar !== null && standings.filter(t => t.scoreToPar === team.scoreToPar).length > 1
-                  const thru = thruLabel(team, scramble)
-                  const isFinished = thru === 'F'
-
-                  return (
-                    <div
-                      key={team.id}
-                      className={`grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50 last:border-b-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
-                    >
-                      <div className="text-center">
-                        {team.holesPlayed > 0
-                          ? <PositionBadge pos={pos} isTied={isTied} />
-                          : <span className="text-gray-300 text-sm">—</span>
-                        }
-                      </div>
-                      <div className={`font-medium text-sm truncate ${team.holesPlayed > 0 ? 'text-gray-800' : 'text-gray-400'}`}>
-                        {team.name}
-                      </div>
-                      <div className="text-center">
-                        {team.holesPlayed > 0 ? (
-                          <span className={`font-bold text-xl ${
-                            team.scoreToPar < 0 ? 'text-red-600'
-                            : team.scoreToPar > 0 ? 'text-blue-800'
-                            : 'text-gray-600'
-                          }`}>
-                            {formatScore(team.scoreToPar)}
-                          </span>
-                        ) : (
-                          <span className="text-gray-300 text-xl">—</span>
-                        )}
-                      </div>
-                      <div className="text-center">
-                        <span className={`text-sm font-medium ${isFinished ? 'text-masters-green font-bold' : 'text-gray-400'}`}>
-                          {thru}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </>
+              )
+            })}
+          </div>
         )}
 
         {/* Match Chat */}

@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:api.golfcourseapi.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\dcris\\\\Projects\\\\ScrambleScorer\" -Recurse -Filter \"*.jsx\" -o \"*.js\" -o \"*.tsx\" -o \"*.ts\")",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)"
     ]
   }
 }

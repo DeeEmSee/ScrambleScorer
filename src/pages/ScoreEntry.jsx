@@ -4,53 +4,70 @@ import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
 
 function ScoreBadge({ strokes, rel }) {
+  // Every badge shares the same w-12 h-12 layout footprint so rows stay aligned.
+  // box-shadow draws the outer ring without expanding the element.
+  const wrap = 'w-12 h-12 flex items-center justify-center flex-shrink-0'
+
   if (strokes === undefined || rel === null) {
     return (
-      <div className="w-10 h-10 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center">
-        <span className="text-gray-300 font-bold">—</span>
+      <div className={wrap}>
+        <div className="w-9 h-9 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center">
+          <span className="text-gray-300 font-bold text-sm">—</span>
+        </div>
       </div>
     )
   }
 
   if (rel <= -2) {
-    // Eagle / albatross: gold double-border circle
+    // Eagle+: double red circle — inner circle + white gap + red outer ring via box-shadow
     return (
-      <div
-        className="w-11 h-11 rounded-full border-4 flex items-center justify-center"
-        style={{ borderColor: '#CFA84C', background: '#fffbeb' }}
-      >
-        <span className="font-black text-lg" style={{ color: '#92400e' }}>{strokes}</span>
+      <div className={wrap}>
+        <div
+          className="w-9 h-9 rounded-full border-2 border-red-600 flex items-center justify-center"
+          style={{ boxShadow: '0 0 0 2px white, 0 0 0 4px #dc2626' }}
+        >
+          <span className="font-black text-base text-gray-900">{strokes}</span>
+        </div>
       </div>
     )
   }
   if (rel === -1) {
-    // Birdie: red filled circle
+    // Birdie: single red circle
     return (
-      <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow">
-        <span className="font-black text-lg text-white">{strokes}</span>
+      <div className={wrap}>
+        <div className="w-9 h-9 rounded-full border-2 border-red-600 flex items-center justify-center">
+          <span className="font-black text-base text-gray-900">{strokes}</span>
+        </div>
       </div>
     )
   }
   if (rel === 0) {
-    // Par: dark rounded square
+    // Par: plain number, no decoration
     return (
-      <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm" style={{ background: '#374151' }}>
-        <span className="font-black text-lg text-white">{strokes}</span>
+      <div className={wrap}>
+        <span className="font-black text-lg text-gray-900">{strokes}</span>
       </div>
     )
   }
   if (rel === 1) {
-    // Bogey: blue bordered square
+    // Bogey: dark blue square
     return (
-      <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm" style={{ background: '#1e3a5f', border: '2px solid #1e4a7f' }}>
-        <span className="font-black text-lg text-white">{strokes}</span>
+      <div className={wrap}>
+        <div className="w-9 h-9 flex items-center justify-center border-2" style={{ borderColor: '#1e3a5f' }}>
+          <span className="font-black text-base text-gray-900">{strokes}</span>
+        </div>
       </div>
     )
   }
-  // Double bogey+
+  // Double bogey+: double black square — inner square + white gap + black outer ring via box-shadow
   return (
-    <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm" style={{ background: '#1e2a45', border: '2px solid #2d3a60' }}>
-      <span className="font-black text-base text-white/80">{strokes}</span>
+    <div className={wrap}>
+      <div
+        className="w-9 h-9 flex items-center justify-center border-2 border-gray-900"
+        style={{ boxShadow: '0 0 0 2px white, 0 0 0 4px #111827' }}
+      >
+        <span className="font-black text-base text-gray-900">{strokes}</span>
+      </div>
     </div>
   )
 }
@@ -64,10 +81,13 @@ export default function ScoreEntry() {
   const [pendingTeam, setPendingTeam] = useState(null)
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState(false)
+  const [confirmSwitch, setConfirmSwitch] = useState(false)
   const [scores, setScores] = useState({})
   const [saving, setSaving] = useState({})
   const [savedHoles, setSavedHoles] = useState({})
   const scoreLogTimeouts = useRef({})
+  const saveTimeouts = useRef({})
+  const savingVersion = useRef({})
 
   useEffect(() => {
     async function load() {
@@ -86,7 +106,10 @@ export default function ScoreEntry() {
         if (match) {
           const { data: existing } = await supabase.from('scores').select('hole_number, strokes').eq('team_id', match.id)
           const scoreMap = {}, savedMap = {}
-          existing?.forEach(s => { scoreMap[s.hole_number] = s.strokes; savedMap[s.hole_number] = true })
+          const clearedKey = `scramble_cleared_${id}_${match.id}`
+          const cleared = JSON.parse(localStorage.getItem(clearedKey) || '{}')
+          const now = Date.now()
+          existing?.filter(s => s.strokes > 0 && !(cleared[s.hole_number] && now - cleared[s.hole_number] < 60000)).forEach(s => { scoreMap[s.hole_number] = s.strokes; savedMap[s.hole_number] = true })
           setScores(scoreMap)
           setSavedHoles(savedMap)
           setActiveTeam(match)
@@ -129,24 +152,89 @@ export default function ScoreEntry() {
     localStorage.setItem(`scramble_team_${id}`, JSON.stringify({ id: team.id, name: team.name }))
   }
 
-  async function saveScore(holeNumber, strokes) {
+  function getClearedKey(teamId) {
+    return `scramble_cleared_${id}_${teamId}`
+  }
+
+  function markCleared(holeNumber, teamId) {
+    const key = getClearedKey(teamId)
+    const cleared = JSON.parse(localStorage.getItem(key) || '{}')
+    cleared[holeNumber] = Date.now()
+    localStorage.setItem(key, JSON.stringify(cleared))
+  }
+
+  function unmarkCleared(holeNumber, teamId) {
+    const key = getClearedKey(teamId)
+    const cleared = JSON.parse(localStorage.getItem(key) || '{}')
+    delete cleared[holeNumber]
+    localStorage.setItem(key, JSON.stringify(cleared))
+  }
+
+  function isRecentlyCleared(holeNumber, teamId) {
+    const key = getClearedKey(teamId)
+    const cleared = JSON.parse(localStorage.getItem(key) || '{}')
+    const clearedAt = cleared[holeNumber]
+    return clearedAt && (Date.now() - clearedAt < 60000)
+  }
+
+  async function saveScore(holeNumber, strokes, version) {
+    if ((savingVersion.current[holeNumber] ?? 0) !== version) return
     setSaving(prev => ({ ...prev, [holeNumber]: true }))
     await supabase.from('scores').upsert(
       { team_id: activeTeam.id, hole_number: holeNumber, strokes },
       { onConflict: 'team_id,hole_number' }
     )
+    // If version changed while upsert was in-flight, the row is now stale — delete it
+    if ((savingVersion.current[holeNumber] ?? 0) !== version) {
+      await supabase.from('scores').delete().eq('team_id', activeTeam.id).eq('hole_number', holeNumber)
+      setSaving(prev => ({ ...prev, [holeNumber]: false }))
+      return
+    }
+    unmarkCleared(holeNumber, activeTeam.id)
     setSavedHoles(prev => ({ ...prev, [holeNumber]: true }))
     setSaving(prev => ({ ...prev, [holeNumber]: false }))
   }
 
-  function adjustScore(holeNumber, delta) {
+  async function clearScore(holeNumber) {
+    clearTimeout(saveTimeouts.current[holeNumber])
+    // Bump version so any in-flight upsert knows it's stale and will self-delete
+    savingVersion.current[holeNumber] = (savingVersion.current[holeNumber] ?? 0) + 1
+    markCleared(holeNumber, activeTeam.id)
+    setScores(prev => { const n = { ...prev }; delete n[holeNumber]; return n })
+    setSavedHoles(prev => { const n = { ...prev }; delete n[holeNumber]; return n })
+    setSaving(prev => ({ ...prev, [holeNumber]: false }))
+    await supabase.from('scores')
+      .delete()
+      .eq('team_id', activeTeam.id)
+      .eq('hole_number', holeNumber)
+  }
+
+  async function adjustScore(holeNumber, delta) {
     const par = holes.find(h => h.hole_number === holeNumber)?.par || 4
-    const isFirst = scores[holeNumber] === undefined
-    const next = isFirst ? par : Math.max(1, Math.min(12, scores[holeNumber] + delta))
-    setScores(prev => ({ ...prev, [holeNumber]: next }))
-    saveScore(holeNumber, next)
+    const isEmpty = scores[holeNumber] === undefined
+    if (isEmpty) {
+      const next = par
+      setScores(prev => ({ ...prev, [holeNumber]: next }))
+      clearTimeout(saveTimeouts.current[holeNumber])
+      const version = savingVersion.current[holeNumber] ?? 0
+      saveTimeouts.current[holeNumber] = setTimeout(() => saveScore(holeNumber, next, version), 300)
+      clearTimeout(scoreLogTimeouts.current[holeNumber])
+      scoreLogTimeouts.current[holeNumber] = setTimeout(() => logScoreToChat(holeNumber, next, par), 2000)
+      return
+    }
+    const next = scores[holeNumber] + delta
+    if (next <= 0) {
+      clearTimeout(scoreLogTimeouts.current[holeNumber])
+      await clearScore(holeNumber)
+      return
+    }
+    const clamped = Math.min(12, next)
+    setScores(prev => ({ ...prev, [holeNumber]: clamped }))
+    clearTimeout(saveTimeouts.current[holeNumber])
+    const version = savingVersion.current[holeNumber] ?? 0
+    saveTimeouts.current[holeNumber] = setTimeout(() => saveScore(holeNumber, clamped, version), 300)
     clearTimeout(scoreLogTimeouts.current[holeNumber])
-    scoreLogTimeouts.current[holeNumber] = setTimeout(() => logScoreToChat(holeNumber, next, par), 2000)
+    scoreLogTimeouts.current[holeNumber] = setTimeout(() => logScoreToChat(holeNumber, clamped, par), 2000)
   }
 
   async function logScoreToChat(holeNumber, strokes, par) {
@@ -245,41 +333,60 @@ export default function ScoreEntry() {
   return (
     <Layout scrambleName={scramble.name}>
       {/* Team banner */}
-      <div className="mg-gradient px-4 py-4">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <div
-            className="w-11 h-11 rounded-full flex items-center justify-center border border-masters-gold/40 flex-shrink-0"
-            style={{ background: 'rgba(207,168,76,0.15)' }}
-          >
-            <span className="text-masters-gold font-black text-lg" style={{ fontFamily: 'Georgia, serif' }}>
-              {activeTeam.name[0].toUpperCase()}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-white font-bold text-base truncate">{activeTeam.name}</div>
+      <div className="mg-gradient px-4 py-3">
+        <div className="max-w-lg mx-auto grid grid-cols-3 items-center">
+          <div className="min-w-0">
+            <div className="text-white font-bold text-sm truncate">{activeTeam.name}</div>
             <div className="text-white/50 text-xs truncate">{scramble.name}</div>
           </div>
-          {scoreDisplay !== null && (
-            <div
-              className="rounded-xl px-3 py-2 text-right border border-white/20 flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.1)' }}
+          <div className="text-center">
+            {scoreDisplay !== null && (
+              <>
+                <div className={`font-black text-xl leading-none ${
+                  scoreToPar < 0 ? 'text-red-300' : scoreToPar > 0 ? 'text-blue-300' : 'text-white'
+                }`}>
+                  {scoreDisplay}
+                </div>
+                <div className="text-white/40 text-xs">to par</div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={() => setConfirmSwitch(true)}
+              className="text-white/70 hover:text-white text-xs font-medium transition-colors border border-white/20 rounded-lg px-3 py-1.5"
             >
-              <div className={`font-black text-2xl leading-none ${
-                scoreToPar < 0 ? 'text-red-300' : scoreToPar > 0 ? 'text-blue-300' : 'text-white'
-              }`}>
-                {scoreDisplay}
-              </div>
-              <div className="text-white/40 text-xs">to par</div>
-            </div>
-          )}
-          <button
-            onClick={() => setActiveTeam(null)}
-            className="text-white/50 hover:text-white text-xs font-medium transition-colors flex-shrink-0"
-          >
-            Switch
-          </button>
+              Switch Team
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Switch team confirmation */}
+      {confirmSwitch && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-gray-900 font-bold text-lg mb-2">Switch Team?</h3>
+            <p className="text-gray-500 text-sm mb-5">
+              Are you sure you want to change the team you're entering scores as?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmSwitch(false)}
+                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-gray-500 font-medium hover:border-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { setConfirmSwitch(false); setActiveTeam(null) }}
+                className="flex-1 bg-masters-green text-white rounded-xl py-2.5 font-bold hover:bg-masters-darkgreen transition-colors"
+              >
+                Switch Team
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hole groups */}
       <div className="max-w-lg mx-auto px-3 py-4 flex flex-col gap-3">

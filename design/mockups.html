@@ -130,23 +130,16 @@
             <div class="text-center">Thru</div>
           </div>
 
-          <!-- Top 3 Podium Rows -->
-          <div class="bg-amber-50 grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-4 border-b-2 border-gold/30">
+          <!-- Leaderboard rows -->
+          <div class="bg-white grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-3.5 border-b border-gray-100">
             <div class="text-center">
-              <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center mx-auto shadow-lg">
-                <span class="text-white font-black text-sm">1</span>
+              <div class="w-7 h-7 rounded-full flex items-center justify-center mx-auto border" style="background: rgba(207,168,76,0.15); border-color: rgba(207,168,76,0.5);">
+                <span class="font-bold text-sm" style="color: #CFA84C;">1</span>
               </div>
             </div>
-            <div>
-              <div class="text-mg font-black text-base">Team Eagle</div>
-              <div class="text-gray-400 text-xs mt-0.5">Leading by 2</div>
-            </div>
-            <div class="text-center">
-              <span class="text-red-600 font-black text-3xl">-7</span>
-            </div>
-            <div class="text-center">
-              <span class="text-mg font-bold text-sm">F</span>
-            </div>
+            <div class="text-gray-800 font-bold text-base">Team Eagle</div>
+            <div class="text-center"><span class="text-red-600 font-bold text-2xl">-7</span></div>
+            <div class="text-center"><span class="text-gray-500 text-sm font-medium">F</span></div>
           </div>
 
           <div class="bg-white grid grid-cols-[52px_1fr_88px_60px] items-center px-4 py-3.5 border-b border-gray-100">
@@ -409,22 +402,12 @@
             <div class="text-white/30 text-xs font-bold uppercase text-center">Thru</div>
           </div>
 
-          <!-- Leader row — highlighted -->
-          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-4 border-b border-gold/20 relative overflow-hidden" style="background: linear-gradient(90deg, rgba(207,168,76,0.12) 0%, transparent 100%);">
-            <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gold"></div>
-            <div class="text-center">
-              <span class="text-gold font-black text-xl">1</span>
-            </div>
-            <div>
-              <div class="text-white font-bold text-base">Team Eagle</div>
-              <div class="text-gold/60 text-xs mt-0.5">↑ Leading</div>
-            </div>
-            <div class="text-center">
-              <span class="text-gold font-black text-3xl" style="text-shadow: 0 0 20px rgba(207,168,76,0.5);">-7</span>
-            </div>
-            <div class="text-center">
-              <span class="text-white/60 text-sm font-bold" style="background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 6px;">F</span>
-            </div>
+          <!-- #1 row -->
+          <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-3.5 border-b border-white/5" style="background: #0f1621;">
+            <div class="text-center"><span class="text-white/50 font-bold text-lg">1</span></div>
+            <div class="text-white/90 font-bold text-base">Team Eagle</div>
+            <div class="text-center"><span class="text-red-400 font-bold text-2xl">-7</span></div>
+            <div class="text-center"><span class="text-white/40 text-sm">F</span></div>
           </div>
 
           <div class="grid grid-cols-[48px_1fr_80px_56px] items-center px-4 py-3.5 border-b border-white/5" style="background: #0f1621;">
@@ -601,34 +584,22 @@
             </div>
           </div>
 
-          <!-- Leader card — hero treatment -->
-          <div class="mx-4 mt-4 mb-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="bg-gradient-to-r from-mg to-mgd px-4 py-1.5">
-              <span class="text-white/80 text-xs uppercase tracking-widest font-bold">Tournament Leader</span>
-            </div>
-            <div class="flex items-center px-4 py-4 gap-4">
-              <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                <span class="text-2xl">🦅</span>
-              </div>
-              <div class="flex-1">
-                <div class="text-gray-900 font-black text-xl">Team Eagle</div>
-                <div class="text-gray-400 text-sm">Finished · 18 holes</div>
-              </div>
-              <div class="text-right">
-                <div class="text-red-600 font-black text-4xl leading-none">-7</div>
-                <div class="text-gray-400 text-xs mt-0.5">score to par</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Rest of standings -->
-          <div class="mx-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
-            <!-- Header -->
+          <!-- Standings -->
+          <div class="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
             <div class="grid grid-cols-[44px_1fr_72px_56px] px-4 py-2 border-b border-gray-50">
               <div class="text-gray-300 text-xs font-bold text-center">#</div>
               <div class="text-gray-300 text-xs font-bold">Team</div>
               <div class="text-gray-300 text-xs font-bold text-center">Score</div>
               <div class="text-gray-300 text-xs font-bold text-center">Thru</div>
+            </div>
+            <!-- #1 row -->
+            <div class="grid grid-cols-[44px_1fr_72px_56px] items-center px-4 py-3.5 border-b border-gray-50">
+              <div class="text-center">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center mx-auto border" style="background: rgba(207,168,76,0.12); border-color: rgba(207,168,76,0.45);"><span class="font-bold text-xs" style="color: #CFA84C;">1</span></div>
+              </div>
+              <div class="text-gray-900 font-bold">Team Eagle</div>
+              <div class="text-center"><span class="text-red-600 font-bold text-xl">-7</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">F</span></div>
             </div>
             <div class="grid grid-cols-[44px_1fr_72px_56px] items-center px-4 py-3.5 border-b border-gray-50">
               <div class="text-center"><span class="text-gray-400 font-bold">2</span></div>
@@ -872,34 +843,22 @@
             </div>
           </div>
 
-          <!-- Hero leader card -->
-          <div class="mx-3 mt-3 mb-2 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-            <div style="background: #006747; height: 3px;"></div>
-            <div class="flex items-center px-4 py-4 gap-3">
-              <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0 border border-gold/30">
-                <span class="text-gold font-black" style="font-family: Georgia, serif;">1</span>
-              </div>
-              <div class="flex-1">
-                <div class="text-gray-900 font-bold text-base">Team Eagle</div>
-                <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="text-xs text-gray-400">Finished ·</span>
-                  <span class="text-xs text-mg font-semibold">Leading by 2</span>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-red-600 font-black text-4xl leading-none">-7</div>
-                <div class="text-gray-400 text-xs mt-0.5 text-right">thru F</div>
-              </div>
-            </div>
-          </div>
-
           <!-- Standings table card -->
-          <div class="mx-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+          <div class="mx-3 mt-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
             <div class="grid grid-cols-[44px_1fr_72px_52px] px-4 py-2 border-b border-gray-50">
               <div class="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Pos</div>
               <div class="text-gray-300 text-xs font-bold uppercase tracking-wide">Team</div>
               <div class="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Score</div>
               <div class="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Thru</div>
+            </div>
+            <!-- #1 row -->
+            <div class="grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50">
+              <div class="text-center">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center mx-auto border" style="background: rgba(207,168,76,0.15); border-color: rgba(207,168,76,0.5);"><span class="font-bold text-xs" style="color: #CFA84C; font-family: Georgia, serif;">1</span></div>
+              </div>
+              <div class="text-gray-900 font-bold text-sm">Team Eagle</div>
+              <div class="text-center"><span class="text-red-600 font-bold text-xl">-7</span></div>
+              <div class="text-center"><span class="text-gray-400 text-sm">F</span></div>
             </div>
             <div class="grid grid-cols-[44px_1fr_72px_52px] items-center px-4 py-3.5 border-b border-gray-50">
               <div class="text-center">
