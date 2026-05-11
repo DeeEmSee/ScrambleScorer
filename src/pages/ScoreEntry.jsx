@@ -87,7 +87,7 @@ export default function ScoreEntry() {
   const [savedHoles, setSavedHoles] = useState({})
   const scoreLogTimeouts = useRef({})
   const saveTimeouts = useRef({})
-  const savingVersion = useRef({})
+  const savingPromises = useRef({})
 
   useEffect(() => {
     async function load() {
@@ -106,10 +106,7 @@ export default function ScoreEntry() {
         if (match) {
           const { data: existing } = await supabase.from('scores').select('hole_number, strokes').eq('team_id', match.id)
           const scoreMap = {}, savedMap = {}
-          const clearedKey = `scramble_cleared_${id}_${match.id}`
-          const cleared = JSON.parse(localStorage.getItem(clearedKey) || '{}')
-          const now = Date.now()
-          existing?.filter(s => s.strokes > 0 && !(cleared[s.hole_number] && now - cleared[s.hole_number] < 60000)).forEach(s => { scoreMap[s.hole_number] = s.strokes; savedMap[s.hole_number] = true })
+          existing?.filter(s => s.strokes > 0).forEach(s => { scoreMap[s.hole_number] = s.strokes; savedMap[s.hole_number] = true })
           setScores(scoreMap)
           setSavedHoles(savedMap)
           setActiveTeam(match)
@@ -152,61 +149,31 @@ export default function ScoreEntry() {
     localStorage.setItem(`scramble_team_${id}`, JSON.stringify({ id: team.id, name: team.name }))
   }
 
-  function getClearedKey(teamId) {
-    return `scramble_cleared_${id}_${teamId}`
-  }
-
-  function markCleared(holeNumber, teamId) {
-    const key = getClearedKey(teamId)
-    const cleared = JSON.parse(localStorage.getItem(key) || '{}')
-    cleared[holeNumber] = Date.now()
-    localStorage.setItem(key, JSON.stringify(cleared))
-  }
-
-  function unmarkCleared(holeNumber, teamId) {
-    const key = getClearedKey(teamId)
-    const cleared = JSON.parse(localStorage.getItem(key) || '{}')
-    delete cleared[holeNumber]
-    localStorage.setItem(key, JSON.stringify(cleared))
-  }
-
-  function isRecentlyCleared(holeNumber, teamId) {
-    const key = getClearedKey(teamId)
-    const cleared = JSON.parse(localStorage.getItem(key) || '{}')
-    const clearedAt = cleared[holeNumber]
-    return clearedAt && (Date.now() - clearedAt < 60000)
-  }
-
-  async function saveScore(holeNumber, strokes, version) {
-    if ((savingVersion.current[holeNumber] ?? 0) !== version) return
+  async function saveScore(holeNumber, strokes) {
     setSaving(prev => ({ ...prev, [holeNumber]: true }))
-    await supabase.from('scores').upsert(
+    const promise = supabase.from('scores').upsert(
       { team_id: activeTeam.id, hole_number: holeNumber, strokes },
       { onConflict: 'team_id,hole_number' }
     )
-    // If version changed while upsert was in-flight, the row is now stale — delete it
-    if ((savingVersion.current[holeNumber] ?? 0) !== version) {
-      await supabase.from('scores').delete().eq('team_id', activeTeam.id).eq('hole_number', holeNumber)
-      setSaving(prev => ({ ...prev, [holeNumber]: false }))
-      return
-    }
-    unmarkCleared(holeNumber, activeTeam.id)
+    savingPromises.current[holeNumber] = promise
+    await promise
     setSavedHoles(prev => ({ ...prev, [holeNumber]: true }))
     setSaving(prev => ({ ...prev, [holeNumber]: false }))
   }
 
   async function clearScore(holeNumber) {
     clearTimeout(saveTimeouts.current[holeNumber])
-    // Bump version so any in-flight upsert knows it's stale and will self-delete
-    savingVersion.current[holeNumber] = (savingVersion.current[holeNumber] ?? 0) + 1
-    markCleared(holeNumber, activeTeam.id)
     setScores(prev => { const n = { ...prev }; delete n[holeNumber]; return n })
     setSavedHoles(prev => { const n = { ...prev }; delete n[holeNumber]; return n })
     setSaving(prev => ({ ...prev, [holeNumber]: false }))
-    await supabase.from('scores')
-      .delete()
-      .eq('team_id', activeTeam.id)
-      .eq('hole_number', holeNumber)
+    // Wait for any in-flight save so our zero upsert is guaranteed to land last
+    if (savingPromises.current[holeNumber]) {
+      await savingPromises.current[holeNumber]
+    }
+    await supabase.from('scores').upsert(
+      { team_id: activeTeam.id, hole_number: holeNumber, strokes: 0 },
+      { onConflict: 'team_id,hole_number' }
+    )
   }
 
   async function adjustScore(holeNumber, delta) {
@@ -216,8 +183,7 @@ export default function ScoreEntry() {
       const next = par
       setScores(prev => ({ ...prev, [holeNumber]: next }))
       clearTimeout(saveTimeouts.current[holeNumber])
-      const version = savingVersion.current[holeNumber] ?? 0
-      saveTimeouts.current[holeNumber] = setTimeout(() => saveScore(holeNumber, next, version), 300)
+      saveTimeouts.current[holeNumber] = setTimeout(() => saveScore(holeNumber, next), 300)
       clearTimeout(scoreLogTimeouts.current[holeNumber])
       scoreLogTimeouts.current[holeNumber] = setTimeout(() => logScoreToChat(holeNumber, next, par), 2000)
       return
@@ -231,8 +197,7 @@ export default function ScoreEntry() {
     const clamped = Math.min(12, next)
     setScores(prev => ({ ...prev, [holeNumber]: clamped }))
     clearTimeout(saveTimeouts.current[holeNumber])
-    const version = savingVersion.current[holeNumber] ?? 0
-    saveTimeouts.current[holeNumber] = setTimeout(() => saveScore(holeNumber, clamped, version), 300)
+    saveTimeouts.current[holeNumber] = setTimeout(() => saveScore(holeNumber, clamped), 300)
     clearTimeout(scoreLogTimeouts.current[holeNumber])
     scoreLogTimeouts.current[holeNumber] = setTimeout(() => logScoreToChat(holeNumber, clamped, par), 2000)
   }

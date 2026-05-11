@@ -55,7 +55,7 @@ export default function Leaderboard() {
     const [{ data: holes }, { data: teams }, { data: scores }] = await Promise.all([
       supabase.from('holes').select('hole_number, par').eq('scramble_id', scrambleId),
       supabase.from('teams').select('id, name').eq('scramble_id', scrambleId),
-      supabase.from('scores').select('team_id, hole_number, strokes'),
+      supabase.from('scores').select('team_id, hole_number, strokes').gt('strokes', 0),
     ])
     if (!holes || !teams) return []
 

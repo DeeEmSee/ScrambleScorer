@@ -25,7 +25,7 @@ export default function AllScores() {
       supabase.from('scrambles').select('*').eq('id', id).single(),
       supabase.from('holes').select('*').eq('scramble_id', id).order('hole_number'),
       supabase.from('teams').select('*').eq('scramble_id', id).order('name'),
-      supabase.from('scores').select('team_id, hole_number, strokes'),
+      supabase.from('scores').select('team_id, hole_number, strokes').gt('strokes', 0),
     ])
     setScramble(s)
     setHoles(h || [])
@@ -167,7 +167,7 @@ export default function AllScores() {
                         const s = teamScores[h.hole_number]
                         return (
                           <td key={h.hole_number} className={`text-center px-1 py-2 text-xs ${scoreStyle(s, h.par)}`}>
-                            {s ?? '—'}
+                            {s || '—'}
                           </td>
                         )
                       })}
@@ -178,7 +178,7 @@ export default function AllScores() {
                         const s = teamScores[h.hole_number]
                         return (
                           <td key={h.hole_number} className={`text-center px-1 py-2 text-xs ${scoreStyle(s, h.par)}`}>
-                            {s ?? '—'}
+                            {s || '—'}
                           </td>
                         )
                       })}
