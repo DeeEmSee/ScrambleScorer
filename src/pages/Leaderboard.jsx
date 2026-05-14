@@ -177,7 +177,7 @@ export default function Leaderboard() {
       <div className="w-full sm:max-w-2xl sm:mx-auto">
 
         {/* Tournament header */}
-        <div className="mg-gradient px-4 pt-5 pb-0 sm:rounded-t-xl overflow-hidden">
+        <div className="mg-gradient px-5 pt-5 pb-0 sm:rounded-t-xl overflow-hidden">
           <div className="flex justify-center mb-2">
             <span
               className="border border-masters-gold/50 text-masters-gold text-xs px-3 py-0.5 rounded-full tracking-widest uppercase"
@@ -208,13 +208,13 @@ export default function Leaderboard() {
 
         {/* Standings */}
         {standings.length === 0 ? (
-          <div className="mx-3 mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-16">
+          <div className="mx-4 mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-16">
             <p className="text-5xl mb-3">🏌️</p>
             <p className="text-lg font-medium text-gray-600">No scores yet</p>
             <p className="text-sm text-gray-400 mt-1">Scores will appear here as teams play.</p>
           </div>
         ) : (
-          <div className="mx-3 mt-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+          <div className="mx-4 mt-3 mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
             <div className="grid grid-cols-[44px_1fr_72px_52px] px-4 py-3 border-b border-gray-50">
               <div className="text-gray-300 text-xs font-bold text-center uppercase tracking-wide">Pos</div>
               <div className="text-gray-300 text-xs font-bold uppercase tracking-wide">Team</div>
@@ -266,7 +266,7 @@ export default function Leaderboard() {
         )}
 
         {/* Match Chat */}
-        <div className="mx-3 mb-6 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+        <div className="mx-4 mb-6 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
           <div className="px-4 py-3 flex items-center gap-2" style={{ background: '#006747' }}>
             <svg className="w-3.5 h-3.5 text-masters-gold" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H9l-4 4v-4H4a2 2 0 01-2-2V5z" />
@@ -317,7 +317,7 @@ export default function Leaderboard() {
                   {!isMe && (
                     <span className="text-xs font-bold text-masters-green mb-0.5">{msg.team_name}</span>
                   )}
-                  <div className={`rounded-2xl px-3 py-2 max-w-xs text-sm break-words ${
+                  <div className={`rounded-2xl px-4 py-2.5 max-w-xs text-sm break-words ${
                     isMe
                       ? 'rounded-tr-md text-white'
                       : 'bg-gray-100 text-gray-800 rounded-tl-md'
@@ -333,7 +333,7 @@ export default function Leaderboard() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="border-t border-gray-100 p-3 flex gap-2">
+          <div className="border-t border-gray-100 p-4 flex gap-2">
             {myTeam ? (
               <>
                 <input

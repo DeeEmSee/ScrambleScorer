@@ -231,7 +231,7 @@ export default function ScoreEntry() {
   // Team selection screen
   if (!activeTeam) return (
     <Layout scrambleName={scramble.name}>
-      <div className="max-w-md mx-auto px-3 py-5">
+      <div className="max-w-md mx-auto px-4 py-5">
         <h2 className="text-gray-900 font-bold text-lg mb-1">Enter Score</h2>
         <p className="text-gray-500 text-sm mb-4">Select your team to get started.</p>
         <div className="flex flex-col gap-2">
@@ -298,7 +298,7 @@ export default function ScoreEntry() {
   return (
     <Layout scrambleName={scramble.name}>
       {/* Team banner */}
-      <div className="mg-gradient px-4 py-3">
+      <div className="mg-gradient px-5 py-3">
         <div className="max-w-lg mx-auto grid grid-cols-3 items-center">
           <div className="min-w-0">
             <div className="text-white font-bold text-sm truncate">{activeTeam.name}</div>
@@ -354,7 +354,7 @@ export default function ScoreEntry() {
       )}
 
       {/* Hole groups */}
-      <div className="max-w-lg mx-auto px-3 py-4 flex flex-col gap-3">
+      <div className="max-w-lg mx-auto px-4 py-4 flex flex-col gap-3">
         {[front9, ...(scramble.num_holes === 18 ? [back9] : [])].map((group, gi) => {
           const groupPar = group.reduce((a, h) => a + h.par, 0)
           const groupScored = group.filter(h => scores[h.hole_number] !== undefined)

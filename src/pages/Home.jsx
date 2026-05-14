@@ -56,7 +56,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-md mx-auto w-full px-3 py-4 flex flex-col gap-3">
+      <main className="flex-1 max-w-md mx-auto w-full px-4 py-4 flex flex-col gap-3">
         {/* Join card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h2 className="text-gray-900 font-bold text-base mb-3">Join a Match</h2>

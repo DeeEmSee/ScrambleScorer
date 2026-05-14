@@ -13,7 +13,7 @@ export default function Layout({ children, scrambleName }) {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="mg-gradient shadow-lg">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-6">
           <div className="flex items-center justify-between h-14">
             <Link
               to="/"
@@ -24,14 +24,17 @@ export default function Layout({ children, scrambleName }) {
               <span className="hidden sm:inline">ScrambleScorer</span>
             </Link>
             {scrambleName && (
-              <span className="text-white/60 text-sm font-medium truncate max-w-[150px] sm:max-w-xs">
+              <span
+                className="text-white/60 text-sm font-medium truncate max-w-[130px] sm:max-w-xs"
+                style={{ marginLeft: '1rem', marginRight: '0.35rem' }}
+              >
                 {scrambleName}
               </span>
             )}
           </div>
         </div>
         {id && (
-          <div className="max-w-4xl mx-auto px-4 border-t border-white/10">
+          <div className="max-w-4xl mx-auto px-6 border-t border-white/10">
             <nav className="flex">
               {tabs(id).map(({ to, label }) => {
                 const active = location.pathname === to

@@ -84,9 +84,9 @@ export default function AllScores() {
 
   return (
     <Layout scrambleName={scramble.name}>
-      <div className="py-4 px-2">
+      <div className="py-4 px-4">
         <h2
-          className="text-gray-700 font-bold text-base mb-3 px-2"
+          className="text-gray-700 font-bold text-base mb-3"
           style={{ fontFamily: 'Georgia, serif' }}
         >
           All Scorecards
@@ -100,7 +100,7 @@ export default function AllScores() {
           return (
             <div key={team.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
               {/* Team header */}
-              <div className="mg-gradient px-4 py-3 flex items-center justify-between">
+              <div className="mg-gradient px-5 py-3 flex items-center justify-between">
                 <h3 className="text-white font-bold text-base">
                   {team.name}
                   {holesPlayed > 0 && (
@@ -127,7 +127,7 @@ export default function AllScores() {
 
               {/* Scorecard table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="min-w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50">
                       <th className="text-left px-3 py-2 text-gray-500 font-medium w-16">Hole</th>
